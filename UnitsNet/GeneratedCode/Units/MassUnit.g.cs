@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -93,6 +92,12 @@ namespace UnitsNet.Units
         /// </summary>
         /// <remarks>http://en.wikipedia.org/wiki/Short_ton</remarks>
         ShortTon,
+
+        /// <summary>
+        ///     The slug (abbreviation slug) is a unit of mass that is accelerated by 1 ft/s² when a force of one pound (lbf) is exerted on it.
+        /// </summary>
+        /// <remarks>http://en.wikipedia.org/wiki/Slug_(unit)</remarks>
+        Slug,
 
         /// <summary>
         ///     The stone (abbreviation st) is a unit of mass equal to 14 pounds avoirdupois (about 6.35 kilograms) used in Great Britain and Ireland for measuring human body weight.

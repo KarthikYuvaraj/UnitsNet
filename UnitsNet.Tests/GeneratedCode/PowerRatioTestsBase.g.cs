@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -62,6 +61,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new PowerRatio((double)0.0, PowerRatioUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new PowerRatio(double.PositiveInfinity, PowerRatioUnit.DecibelWatt));
+            Assert.Throws<ArgumentException>(() => new PowerRatio(double.NegativeInfinity, PowerRatioUnit.DecibelWatt));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new PowerRatio(double.NaN, PowerRatioUnit.DecibelWatt));
+        }
+
+        [Fact]
         public void DecibelWattToPowerRatioUnits()
         {
             PowerRatio decibelwatt = PowerRatio.FromDecibelWatts(1);
@@ -74,6 +92,19 @@ namespace UnitsNet.Tests
         {
             AssertEx.EqualTolerance(1, PowerRatio.From(1, PowerRatioUnit.DecibelMilliwatt).DecibelMilliwatts, DecibelMilliwattsTolerance);
             AssertEx.EqualTolerance(1, PowerRatio.From(1, PowerRatioUnit.DecibelWatt).DecibelWatts, DecibelWattsTolerance);
+        }
+
+        [Fact]
+        public void FromDecibelWatts_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => PowerRatio.FromDecibelWatts(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => PowerRatio.FromDecibelWatts(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromDecibelWatts_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => PowerRatio.FromDecibelWatts(double.NaN));
         }
 
         [Fact]
@@ -192,5 +223,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(PowerRatioUnit.Undefined, PowerRatio.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(PowerRatioUnit)).Cast<PowerRatioUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == PowerRatioUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

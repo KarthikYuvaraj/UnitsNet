@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -70,6 +69,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new DynamicViscosity((double)0.0, DynamicViscosityUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new DynamicViscosity(double.PositiveInfinity, DynamicViscosityUnit.NewtonSecondPerMeterSquared));
+            Assert.Throws<ArgumentException>(() => new DynamicViscosity(double.NegativeInfinity, DynamicViscosityUnit.NewtonSecondPerMeterSquared));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new DynamicViscosity(double.NaN, DynamicViscosityUnit.NewtonSecondPerMeterSquared));
+        }
+
+        [Fact]
         public void NewtonSecondPerMeterSquaredToDynamicViscosityUnits()
         {
             DynamicViscosity newtonsecondpermetersquared = DynamicViscosity.FromNewtonSecondsPerMeterSquared(1);
@@ -90,6 +108,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, DynamicViscosity.From(1, DynamicViscosityUnit.NewtonSecondPerMeterSquared).NewtonSecondsPerMeterSquared, NewtonSecondsPerMeterSquaredTolerance);
             AssertEx.EqualTolerance(1, DynamicViscosity.From(1, DynamicViscosityUnit.PascalSecond).PascalSeconds, PascalSecondsTolerance);
             AssertEx.EqualTolerance(1, DynamicViscosity.From(1, DynamicViscosityUnit.Poise).Poise, PoiseTolerance);
+        }
+
+        [Fact]
+        public void FromNewtonSecondsPerMeterSquared_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => DynamicViscosity.FromNewtonSecondsPerMeterSquared(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => DynamicViscosity.FromNewtonSecondsPerMeterSquared(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromNewtonSecondsPerMeterSquared_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => DynamicViscosity.FromNewtonSecondsPerMeterSquared(double.NaN));
         }
 
         [Fact]
@@ -227,5 +258,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(DynamicViscosityUnit.Undefined, DynamicViscosity.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(DynamicViscosityUnit)).Cast<DynamicViscosityUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == DynamicViscosityUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

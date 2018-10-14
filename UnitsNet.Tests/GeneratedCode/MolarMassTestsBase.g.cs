@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -82,6 +81,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new MolarMass((double)0.0, MolarMassUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new MolarMass(double.PositiveInfinity, MolarMassUnit.KilogramPerMole));
+            Assert.Throws<ArgumentException>(() => new MolarMass(double.NegativeInfinity, MolarMassUnit.KilogramPerMole));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new MolarMass(double.NaN, MolarMassUnit.KilogramPerMole));
+        }
+
+        [Fact]
         public void KilogramPerMoleToMolarMassUnits()
         {
             MolarMass kilogrampermole = MolarMass.FromKilogramsPerMole(1);
@@ -114,6 +132,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, MolarMass.From(1, MolarMassUnit.MilligramPerMole).MilligramsPerMole, MilligramsPerMoleTolerance);
             AssertEx.EqualTolerance(1, MolarMass.From(1, MolarMassUnit.NanogramPerMole).NanogramsPerMole, NanogramsPerMoleTolerance);
             AssertEx.EqualTolerance(1, MolarMass.From(1, MolarMassUnit.PoundPerMole).PoundsPerMole, PoundsPerMoleTolerance);
+        }
+
+        [Fact]
+        public void FromKilogramsPerMole_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => MolarMass.FromKilogramsPerMole(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => MolarMass.FromKilogramsPerMole(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromKilogramsPerMole_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => MolarMass.FromKilogramsPerMole(double.NaN));
         }
 
         [Fact]
@@ -287,5 +318,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(MolarMassUnit.Undefined, MolarMass.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(MolarMassUnit)).Cast<MolarMassUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == MolarMassUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

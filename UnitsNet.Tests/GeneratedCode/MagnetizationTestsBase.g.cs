@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -60,6 +59,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Magnetization((double)0.0, MagnetizationUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Magnetization(double.PositiveInfinity, MagnetizationUnit.AmperePerMeter));
+            Assert.Throws<ArgumentException>(() => new Magnetization(double.NegativeInfinity, MagnetizationUnit.AmperePerMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Magnetization(double.NaN, MagnetizationUnit.AmperePerMeter));
+        }
+
+        [Fact]
         public void AmperePerMeterToMagnetizationUnits()
         {
             Magnetization amperepermeter = Magnetization.FromAmperesPerMeter(1);
@@ -70,6 +88,19 @@ namespace UnitsNet.Tests
         public void FromValueAndUnit()
         {
             AssertEx.EqualTolerance(1, Magnetization.From(1, MagnetizationUnit.AmperePerMeter).AmperesPerMeter, AmperesPerMeterTolerance);
+        }
+
+        [Fact]
+        public void FromAmperesPerMeter_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Magnetization.FromAmperesPerMeter(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Magnetization.FromAmperesPerMeter(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromAmperesPerMeter_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Magnetization.FromAmperesPerMeter(double.NaN));
         }
 
         [Fact]
@@ -177,5 +208,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(MagnetizationUnit.Undefined, Magnetization.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(MagnetizationUnit)).Cast<MagnetizationUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == MagnetizationUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -60,6 +59,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new AreaDensity((double)0.0, AreaDensityUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new AreaDensity(double.PositiveInfinity, AreaDensityUnit.KilogramPerSquareMeter));
+            Assert.Throws<ArgumentException>(() => new AreaDensity(double.NegativeInfinity, AreaDensityUnit.KilogramPerSquareMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new AreaDensity(double.NaN, AreaDensityUnit.KilogramPerSquareMeter));
+        }
+
+        [Fact]
         public void KilogramPerSquareMeterToAreaDensityUnits()
         {
             AreaDensity kilogrampersquaremeter = AreaDensity.FromKilogramsPerSquareMeter(1);
@@ -70,6 +88,19 @@ namespace UnitsNet.Tests
         public void FromValueAndUnit()
         {
             AssertEx.EqualTolerance(1, AreaDensity.From(1, AreaDensityUnit.KilogramPerSquareMeter).KilogramsPerSquareMeter, KilogramsPerSquareMeterTolerance);
+        }
+
+        [Fact]
+        public void FromKilogramsPerSquareMeter_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => AreaDensity.FromKilogramsPerSquareMeter(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => AreaDensity.FromKilogramsPerSquareMeter(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromKilogramsPerSquareMeter_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => AreaDensity.FromKilogramsPerSquareMeter(double.NaN));
         }
 
         [Fact]
@@ -177,5 +208,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(AreaDensityUnit.Undefined, AreaDensity.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(AreaDensityUnit)).Cast<AreaDensityUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == AreaDensityUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

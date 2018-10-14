@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -146,6 +145,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new PowerDensity((double)0.0, PowerDensityUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new PowerDensity(double.PositiveInfinity, PowerDensityUnit.WattPerCubicMeter));
+            Assert.Throws<ArgumentException>(() => new PowerDensity(double.NegativeInfinity, PowerDensityUnit.WattPerCubicMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new PowerDensity(double.NaN, PowerDensityUnit.WattPerCubicMeter));
+        }
+
+        [Fact]
         public void WattPerCubicMeterToPowerDensityUnits()
         {
             PowerDensity wattpercubicmeter = PowerDensity.FromWattsPerCubicMeter(1);
@@ -242,6 +260,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, PowerDensity.From(1, PowerDensityUnit.WattPerCubicInch).WattsPerCubicInch, WattsPerCubicInchTolerance);
             AssertEx.EqualTolerance(1, PowerDensity.From(1, PowerDensityUnit.WattPerCubicMeter).WattsPerCubicMeter, WattsPerCubicMeterTolerance);
             AssertEx.EqualTolerance(1, PowerDensity.From(1, PowerDensityUnit.WattPerLiter).WattsPerLiter, WattsPerLiterTolerance);
+        }
+
+        [Fact]
+        public void FromWattsPerCubicMeter_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => PowerDensity.FromWattsPerCubicMeter(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => PowerDensity.FromWattsPerCubicMeter(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromWattsPerCubicMeter_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => PowerDensity.FromWattsPerCubicMeter(double.NaN));
         }
 
         [Fact]
@@ -607,5 +638,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(PowerDensityUnit.Undefined, PowerDensity.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(PowerDensityUnit)).Cast<PowerDensityUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == PowerDensityUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

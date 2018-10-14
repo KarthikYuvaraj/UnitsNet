@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -37,11 +36,9 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Linq;
 using JetBrains.Annotations;
+using UnitsNet.InternalHelpers;
 using UnitsNet.Units;
 
 // ReSharper disable once CheckNamespace
@@ -84,9 +81,10 @@ namespace UnitsNet
         /// <summary>
         ///     Creates the quantity with the given numeric value and unit.
         /// </summary>
-        /// <param name="numericValue">Numeric value.</param>
+        /// <param name="numericValue">The numeric value  to contruct this quantity with.</param>
         /// <param name="unit">The unit representation to contruct this quantity with.</param>
         /// <remarks>Value parameter cannot be named 'value' due to constraint when targeting Windows Runtime Component.</remarks>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         private
 #else
@@ -94,7 +92,10 @@ namespace UnitsNet
 #endif
         Angle(double numericValue, AngleUnit unit)
         {
-            _value = numericValue;
+            if(unit == AngleUnit.Undefined)
+              throw new ArgumentException("The quantity can not be created with an undefined unit.", nameof(unit));
+
+            _value = Guard.EnsureValidNumber(numericValue, nameof(numericValue));
             _unit = unit;
         }
 
@@ -205,6 +206,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Angle from Arcminutes.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Angle FromArcminutes(double arcminutes)
@@ -219,6 +221,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Angle from Arcseconds.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Angle FromArcseconds(double arcseconds)
@@ -233,6 +236,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Angle from Centiradians.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Angle FromCentiradians(double centiradians)
@@ -247,6 +251,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Angle from Deciradians.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Angle FromDeciradians(double deciradians)
@@ -261,6 +266,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Angle from Degrees.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Angle FromDegrees(double degrees)
@@ -275,6 +281,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Angle from Gradians.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Angle FromGradians(double gradians)
@@ -289,6 +296,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Angle from Microdegrees.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Angle FromMicrodegrees(double microdegrees)
@@ -303,6 +311,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Angle from Microradians.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Angle FromMicroradians(double microradians)
@@ -317,6 +326,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Angle from Millidegrees.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Angle FromMillidegrees(double millidegrees)
@@ -331,6 +341,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Angle from Milliradians.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Angle FromMilliradians(double milliradians)
@@ -345,6 +356,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Angle from Nanodegrees.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Angle FromNanodegrees(double nanodegrees)
@@ -359,6 +371,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Angle from Nanoradians.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Angle FromNanoradians(double nanoradians)
@@ -373,6 +386,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Angle from Radians.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Angle FromRadians(double radians)
@@ -387,6 +401,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Angle from Revolutions.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Angle FromRevolutions(double revolutions)
@@ -621,7 +636,7 @@ namespace UnitsNet
         /// </exception>
         public static Angle Parse(string str)
         {
-            return Parse(str, null);
+            return ParseInternal(str, null);
         }
 
         /// <summary>
@@ -634,7 +649,7 @@ namespace UnitsNet
         /// </example>
         public static bool TryParse([CanBeNull] string str, out Angle result)
         {
-            return TryParse(str, null, out result);
+            return TryParseInternal(str, null, out result);
         }
 
         /// <summary>
@@ -648,7 +663,121 @@ namespace UnitsNet
         /// <exception cref="UnitsNetException">Error parsing string.</exception>
         public static AngleUnit ParseUnit(string str)
         {
-            return ParseUnit(str, (IFormatProvider)null);
+            return ParseUnitInternal(str, null);
+        }
+
+        public static bool TryParseUnit(string str, out AngleUnit unit)
+        {
+            return TryParseUnitInternal(str, null, out unit);
+        }
+
+        /// <summary>
+        ///     Parse a string with one or two quantities of the format "&lt;quantity&gt; &lt;unit&gt;".
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <example>
+        ///     Length.Parse("5.5 m", new CultureInfo("en-US"));
+        /// </example>
+        /// <exception cref="ArgumentNullException">The value of 'str' cannot be null. </exception>
+        /// <exception cref="ArgumentException">
+        ///     Expected string to have one or two pairs of quantity and unit in the format
+        ///     "&lt;quantity&gt; &lt;unit&gt;". Eg. "5.5 m" or "1ft 2in"
+        /// </exception>
+        /// <exception cref="AmbiguousUnitParseException">
+        ///     More than one unit is represented by the specified unit abbreviation.
+        ///     Example: Volume.Parse("1 cup") will throw, because it can refer to any of
+        ///     <see cref="VolumeUnit.MetricCup" />, <see cref="VolumeUnit.UsLegalCup" /> and <see cref="VolumeUnit.UsCustomaryCup" />.
+        /// </exception>
+        /// <exception cref="UnitsNetException">
+        ///     If anything else goes wrong, typically due to a bug or unhandled case.
+        ///     We wrap exceptions in <see cref="UnitsNetException" /> to allow you to distinguish
+        ///     Units.NET exceptions from other exceptions.
+        /// </exception>
+        private static Angle ParseInternal(string str, [CanBeNull] IFormatProvider provider)
+        {
+            if (str == null) throw new ArgumentNullException(nameof(str));
+
+            provider = provider ?? GlobalConfiguration.DefaultCulture;
+
+            return QuantityParser.Default.Parse<Angle, AngleUnit>(str, provider, ParseUnitInternal, From,
+                (x, y) => From(x.Degrees + y.Degrees, BaseUnit));
+        }
+
+        /// <summary>
+        ///     Try to parse a string with one or two quantities of the format "&lt;quantity&gt; &lt;unit&gt;".
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <param name="result">Resulting unit quantity if successful.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        /// <example>
+        ///     Length.Parse("5.5 m", new CultureInfo("en-US"));
+        /// </example>
+        private static bool TryParseInternal([CanBeNull] string str, [CanBeNull] IFormatProvider provider, out Angle result)
+        {
+            result = default(Angle);
+
+            if(string.IsNullOrWhiteSpace(str))
+                return false;
+
+            provider = provider ?? GlobalConfiguration.DefaultCulture;
+
+            return QuantityParser.Default.TryParse<Angle, AngleUnit>(str, provider, TryParseUnitInternal, From,
+                (x, y) => From(x.Degrees + y.Degrees, BaseUnit), out result);
+        }
+
+        /// <summary>
+        ///     Parse a unit string.
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <example>
+        ///     Length.ParseUnit("m", new CultureInfo("en-US"));
+        /// </example>
+        /// <exception cref="ArgumentNullException">The value of 'str' cannot be null. </exception>
+        /// <exception cref="UnitsNetException">Error parsing string.</exception>
+        private static AngleUnit ParseUnitInternal(string str, IFormatProvider provider = null)
+        {
+            if (str == null) throw new ArgumentNullException(nameof(str));
+
+            var unit = UnitParser.Default.Parse<AngleUnit>(str.Trim(), provider);
+
+            if (unit == AngleUnit.Undefined)
+            {
+                var newEx = new UnitsNetException("Error parsing string. The unit is not a recognized AngleUnit.");
+                newEx.Data["input"] = str;
+                newEx.Data["provider"] = provider?.ToString() ?? "(null)";
+                throw newEx;
+            }
+
+            return unit;
+        }
+
+        /// <summary>
+        ///     Parse a unit string.
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <param name="unit">The parsed unit if successful.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        /// <example>
+        ///     Length.ParseUnit("m", new CultureInfo("en-US"));
+        /// </example>
+        private static bool TryParseUnitInternal(string str, IFormatProvider provider, out AngleUnit unit)
+        {
+            unit = AngleUnit.Undefined;
+
+            if(string.IsNullOrWhiteSpace(str))
+                return false;
+
+            if(!UnitParser.Default.TryParse<AngleUnit>(str.Trim(), provider, out unit))
+                return false;
+
+            if(unit == AngleUnit.Undefined)
+                return false;
+
+            return true;
         }
 
         #endregion

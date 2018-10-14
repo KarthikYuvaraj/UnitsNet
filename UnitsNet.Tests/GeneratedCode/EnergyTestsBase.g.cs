@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -102,6 +101,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Energy((double)0.0, EnergyUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Energy(double.PositiveInfinity, EnergyUnit.Joule));
+            Assert.Throws<ArgumentException>(() => new Energy(double.NegativeInfinity, EnergyUnit.Joule));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Energy(double.NaN, EnergyUnit.Joule));
+        }
+
+        [Fact]
         public void JouleToEnergyUnits()
         {
             Energy joule = Energy.FromJoules(1);
@@ -154,6 +172,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, Energy.From(1, EnergyUnit.ThermImperial).ThermsImperial, ThermsImperialTolerance);
             AssertEx.EqualTolerance(1, Energy.From(1, EnergyUnit.ThermUs).ThermsUs, ThermsUsTolerance);
             AssertEx.EqualTolerance(1, Energy.From(1, EnergyUnit.WattHour).WattHours, WattHoursTolerance);
+        }
+
+        [Fact]
+        public void FromJoules_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Energy.FromJoules(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Energy.FromJoules(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromJoules_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Energy.FromJoules(double.NaN));
         }
 
         [Fact]
@@ -387,5 +418,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(EnergyUnit.Undefined, Energy.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(EnergyUnit)).Cast<EnergyUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == EnergyUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

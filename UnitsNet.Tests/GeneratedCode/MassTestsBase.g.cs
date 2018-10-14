@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -72,6 +71,7 @@ namespace UnitsNet.Tests
         protected abstract double PoundsInOneKilogram { get; }
         protected abstract double ShortHundredweightInOneKilogram { get; }
         protected abstract double ShortTonsInOneKilogram { get; }
+        protected abstract double SlugsInOneKilogram { get; }
         protected abstract double StoneInOneKilogram { get; }
         protected abstract double TonnesInOneKilogram { get; }
 
@@ -95,9 +95,29 @@ namespace UnitsNet.Tests
         protected virtual double PoundsTolerance { get { return 1e-5; } }
         protected virtual double ShortHundredweightTolerance { get { return 1e-5; } }
         protected virtual double ShortTonsTolerance { get { return 1e-5; } }
+        protected virtual double SlugsTolerance { get { return 1e-5; } }
         protected virtual double StoneTolerance { get { return 1e-5; } }
         protected virtual double TonnesTolerance { get { return 1e-5; } }
 // ReSharper restore VirtualMemberNeverOverriden.Global
+
+        [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Mass((double)0.0, MassUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Mass(double.PositiveInfinity, MassUnit.Kilogram));
+            Assert.Throws<ArgumentException>(() => new Mass(double.NegativeInfinity, MassUnit.Kilogram));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Mass(double.NaN, MassUnit.Kilogram));
+        }
 
         [Fact]
         public void KilogramToMassUnits()
@@ -122,6 +142,7 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(PoundsInOneKilogram, kilogram.Pounds, PoundsTolerance);
             AssertEx.EqualTolerance(ShortHundredweightInOneKilogram, kilogram.ShortHundredweight, ShortHundredweightTolerance);
             AssertEx.EqualTolerance(ShortTonsInOneKilogram, kilogram.ShortTons, ShortTonsTolerance);
+            AssertEx.EqualTolerance(SlugsInOneKilogram, kilogram.Slugs, SlugsTolerance);
             AssertEx.EqualTolerance(StoneInOneKilogram, kilogram.Stone, StoneTolerance);
             AssertEx.EqualTolerance(TonnesInOneKilogram, kilogram.Tonnes, TonnesTolerance);
         }
@@ -148,8 +169,22 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, Mass.From(1, MassUnit.Pound).Pounds, PoundsTolerance);
             AssertEx.EqualTolerance(1, Mass.From(1, MassUnit.ShortHundredweight).ShortHundredweight, ShortHundredweightTolerance);
             AssertEx.EqualTolerance(1, Mass.From(1, MassUnit.ShortTon).ShortTons, ShortTonsTolerance);
+            AssertEx.EqualTolerance(1, Mass.From(1, MassUnit.Slug).Slugs, SlugsTolerance);
             AssertEx.EqualTolerance(1, Mass.From(1, MassUnit.Stone).Stone, StoneTolerance);
             AssertEx.EqualTolerance(1, Mass.From(1, MassUnit.Tonne).Tonnes, TonnesTolerance);
+        }
+
+        [Fact]
+        public void FromKilograms_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Mass.FromKilograms(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Mass.FromKilograms(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromKilograms_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Mass.FromKilograms(double.NaN));
         }
 
         [Fact]
@@ -175,6 +210,7 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(PoundsInOneKilogram, kilogram.As(MassUnit.Pound), PoundsTolerance);
             AssertEx.EqualTolerance(ShortHundredweightInOneKilogram, kilogram.As(MassUnit.ShortHundredweight), ShortHundredweightTolerance);
             AssertEx.EqualTolerance(ShortTonsInOneKilogram, kilogram.As(MassUnit.ShortTon), ShortTonsTolerance);
+            AssertEx.EqualTolerance(SlugsInOneKilogram, kilogram.As(MassUnit.Slug), SlugsTolerance);
             AssertEx.EqualTolerance(StoneInOneKilogram, kilogram.As(MassUnit.Stone), StoneTolerance);
             AssertEx.EqualTolerance(TonnesInOneKilogram, kilogram.As(MassUnit.Tonne), TonnesTolerance);
         }
@@ -260,6 +296,10 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(ShortTonsInOneKilogram, (double)shorttonQuantity.Value, ShortTonsTolerance);
             Assert.Equal(MassUnit.ShortTon, shorttonQuantity.Unit);
 
+            var slugQuantity = kilogram.ToUnit(MassUnit.Slug);
+            AssertEx.EqualTolerance(SlugsInOneKilogram, (double)slugQuantity.Value, SlugsTolerance);
+            Assert.Equal(MassUnit.Slug, slugQuantity.Unit);
+
             var stoneQuantity = kilogram.ToUnit(MassUnit.Stone);
             AssertEx.EqualTolerance(StoneInOneKilogram, (double)stoneQuantity.Value, StoneTolerance);
             Assert.Equal(MassUnit.Stone, stoneQuantity.Unit);
@@ -292,6 +332,7 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, Mass.FromPounds(kilogram.Pounds).Kilograms, PoundsTolerance);
             AssertEx.EqualTolerance(1, Mass.FromShortHundredweight(kilogram.ShortHundredweight).Kilograms, ShortHundredweightTolerance);
             AssertEx.EqualTolerance(1, Mass.FromShortTons(kilogram.ShortTons).Kilograms, ShortTonsTolerance);
+            AssertEx.EqualTolerance(1, Mass.FromSlugs(kilogram.Slugs).Kilograms, SlugsTolerance);
             AssertEx.EqualTolerance(1, Mass.FromStone(kilogram.Stone).Kilograms, StoneTolerance);
             AssertEx.EqualTolerance(1, Mass.FromTonnes(kilogram.Tonnes).Kilograms, TonnesTolerance);
         }
@@ -377,5 +418,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(MassUnit.Undefined, Mass.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(MassUnit)).Cast<MassUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == MassUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

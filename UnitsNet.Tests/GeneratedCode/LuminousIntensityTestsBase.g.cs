@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -60,6 +59,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new LuminousIntensity((double)0.0, LuminousIntensityUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new LuminousIntensity(double.PositiveInfinity, LuminousIntensityUnit.Candela));
+            Assert.Throws<ArgumentException>(() => new LuminousIntensity(double.NegativeInfinity, LuminousIntensityUnit.Candela));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new LuminousIntensity(double.NaN, LuminousIntensityUnit.Candela));
+        }
+
+        [Fact]
         public void CandelaToLuminousIntensityUnits()
         {
             LuminousIntensity candela = LuminousIntensity.FromCandela(1);
@@ -70,6 +88,19 @@ namespace UnitsNet.Tests
         public void FromValueAndUnit()
         {
             AssertEx.EqualTolerance(1, LuminousIntensity.From(1, LuminousIntensityUnit.Candela).Candela, CandelaTolerance);
+        }
+
+        [Fact]
+        public void FromCandela_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => LuminousIntensity.FromCandela(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => LuminousIntensity.FromCandela(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromCandela_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => LuminousIntensity.FromCandela(double.NaN));
         }
 
         [Fact]
@@ -177,5 +208,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(LuminousIntensityUnit.Undefined, LuminousIntensity.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(LuminousIntensityUnit)).Cast<LuminousIntensityUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == LuminousIntensityUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

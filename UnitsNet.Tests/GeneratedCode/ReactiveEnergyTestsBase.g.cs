@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -64,6 +63,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ReactiveEnergy((double)0.0, ReactiveEnergyUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ReactiveEnergy(double.PositiveInfinity, ReactiveEnergyUnit.VoltampereReactiveHour));
+            Assert.Throws<ArgumentException>(() => new ReactiveEnergy(double.NegativeInfinity, ReactiveEnergyUnit.VoltampereReactiveHour));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ReactiveEnergy(double.NaN, ReactiveEnergyUnit.VoltampereReactiveHour));
+        }
+
+        [Fact]
         public void VoltampereReactiveHourToReactiveEnergyUnits()
         {
             ReactiveEnergy voltamperereactivehour = ReactiveEnergy.FromVoltampereReactiveHours(1);
@@ -78,6 +96,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, ReactiveEnergy.From(1, ReactiveEnergyUnit.KilovoltampereReactiveHour).KilovoltampereReactiveHours, KilovoltampereReactiveHoursTolerance);
             AssertEx.EqualTolerance(1, ReactiveEnergy.From(1, ReactiveEnergyUnit.MegavoltampereReactiveHour).MegavoltampereReactiveHours, MegavoltampereReactiveHoursTolerance);
             AssertEx.EqualTolerance(1, ReactiveEnergy.From(1, ReactiveEnergyUnit.VoltampereReactiveHour).VoltampereReactiveHours, VoltampereReactiveHoursTolerance);
+        }
+
+        [Fact]
+        public void FromVoltampereReactiveHours_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ReactiveEnergy.FromVoltampereReactiveHours(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => ReactiveEnergy.FromVoltampereReactiveHours(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromVoltampereReactiveHours_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ReactiveEnergy.FromVoltampereReactiveHours(double.NaN));
         }
 
         [Fact]
@@ -197,5 +228,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ReactiveEnergyUnit.Undefined, ReactiveEnergy.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ReactiveEnergyUnit)).Cast<ReactiveEnergyUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ReactiveEnergyUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -86,6 +85,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new AmountOfSubstance((double)0.0, AmountOfSubstanceUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new AmountOfSubstance(double.PositiveInfinity, AmountOfSubstanceUnit.Mole));
+            Assert.Throws<ArgumentException>(() => new AmountOfSubstance(double.NegativeInfinity, AmountOfSubstanceUnit.Mole));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new AmountOfSubstance(double.NaN, AmountOfSubstanceUnit.Mole));
+        }
+
+        [Fact]
         public void MoleToAmountOfSubstanceUnits()
         {
             AmountOfSubstance mole = AmountOfSubstance.FromMoles(1);
@@ -122,6 +140,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, AmountOfSubstance.From(1, AmountOfSubstanceUnit.Nanomole).Nanomoles, NanomolesTolerance);
             AssertEx.EqualTolerance(1, AmountOfSubstance.From(1, AmountOfSubstanceUnit.NanopoundMole).NanopoundMoles, NanopoundMolesTolerance);
             AssertEx.EqualTolerance(1, AmountOfSubstance.From(1, AmountOfSubstanceUnit.PoundMole).PoundMoles, PoundMolesTolerance);
+        }
+
+        [Fact]
+        public void FromMoles_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => AmountOfSubstance.FromMoles(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => AmountOfSubstance.FromMoles(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromMoles_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => AmountOfSubstance.FromMoles(double.NaN));
         }
 
         [Fact]
@@ -307,5 +338,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(AmountOfSubstanceUnit.Undefined, AmountOfSubstance.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(AmountOfSubstanceUnit)).Cast<AmountOfSubstanceUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == AmountOfSubstanceUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

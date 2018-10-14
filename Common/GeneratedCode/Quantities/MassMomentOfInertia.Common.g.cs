@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -37,11 +36,9 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Linq;
 using JetBrains.Annotations;
+using UnitsNet.InternalHelpers;
 using UnitsNet.Units;
 
 // ReSharper disable once CheckNamespace
@@ -85,9 +82,10 @@ namespace UnitsNet
         /// <summary>
         ///     Creates the quantity with the given numeric value and unit.
         /// </summary>
-        /// <param name="numericValue">Numeric value.</param>
+        /// <param name="numericValue">The numeric value  to contruct this quantity with.</param>
         /// <param name="unit">The unit representation to contruct this quantity with.</param>
         /// <remarks>Value parameter cannot be named 'value' due to constraint when targeting Windows Runtime Component.</remarks>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         private
 #else
@@ -95,7 +93,10 @@ namespace UnitsNet
 #endif
         MassMomentOfInertia(double numericValue, MassMomentOfInertiaUnit unit)
         {
-            _value = numericValue;
+            if(unit == MassMomentOfInertiaUnit.Undefined)
+              throw new ArgumentException("The quantity can not be created with an undefined unit.", nameof(unit));
+
+            _value = Guard.EnsureValidNumber(numericValue, nameof(numericValue));
             _unit = unit;
         }
 
@@ -235,6 +236,16 @@ namespace UnitsNet
         public double PoundSquareInches => As(MassMomentOfInertiaUnit.PoundSquareInch);
 
         /// <summary>
+        ///     Get MassMomentOfInertia in SlugSquareFeet.
+        /// </summary>
+        public double SlugSquareFeet => As(MassMomentOfInertiaUnit.SlugSquareFoot);
+
+        /// <summary>
+        ///     Get MassMomentOfInertia in SlugSquareInches.
+        /// </summary>
+        public double SlugSquareInches => As(MassMomentOfInertiaUnit.SlugSquareInch);
+
+        /// <summary>
         ///     Get MassMomentOfInertia in TonneSquareCentimeters.
         /// </summary>
         public double TonneSquareCentimeters => As(MassMomentOfInertiaUnit.TonneSquareCentimeter);
@@ -266,6 +277,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from GramSquareCentimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromGramSquareCentimeters(double gramsquarecentimeters)
@@ -280,6 +292,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from GramSquareDecimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromGramSquareDecimeters(double gramsquaredecimeters)
@@ -294,6 +307,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from GramSquareMeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromGramSquareMeters(double gramsquaremeters)
@@ -308,6 +322,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from GramSquareMillimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromGramSquareMillimeters(double gramsquaremillimeters)
@@ -322,6 +337,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from KilogramSquareCentimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromKilogramSquareCentimeters(double kilogramsquarecentimeters)
@@ -336,6 +352,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from KilogramSquareDecimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromKilogramSquareDecimeters(double kilogramsquaredecimeters)
@@ -350,6 +367,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from KilogramSquareMeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromKilogramSquareMeters(double kilogramsquaremeters)
@@ -364,6 +382,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from KilogramSquareMillimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromKilogramSquareMillimeters(double kilogramsquaremillimeters)
@@ -378,6 +397,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from KilotonneSquareCentimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromKilotonneSquareCentimeters(double kilotonnesquarecentimeters)
@@ -392,6 +412,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from KilotonneSquareDecimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromKilotonneSquareDecimeters(double kilotonnesquaredecimeters)
@@ -406,6 +427,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from KilotonneSquareMeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromKilotonneSquareMeters(double kilotonnesquaremeters)
@@ -420,6 +442,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from KilotonneSquareMilimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromKilotonneSquareMilimeters(double kilotonnesquaremilimeters)
@@ -434,6 +457,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from MegatonneSquareCentimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromMegatonneSquareCentimeters(double megatonnesquarecentimeters)
@@ -448,6 +472,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from MegatonneSquareDecimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromMegatonneSquareDecimeters(double megatonnesquaredecimeters)
@@ -462,6 +487,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from MegatonneSquareMeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromMegatonneSquareMeters(double megatonnesquaremeters)
@@ -476,6 +502,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from MegatonneSquareMilimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromMegatonneSquareMilimeters(double megatonnesquaremilimeters)
@@ -490,6 +517,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from MilligramSquareCentimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromMilligramSquareCentimeters(double milligramsquarecentimeters)
@@ -504,6 +532,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from MilligramSquareDecimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromMilligramSquareDecimeters(double milligramsquaredecimeters)
@@ -518,6 +547,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from MilligramSquareMeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromMilligramSquareMeters(double milligramsquaremeters)
@@ -532,6 +562,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from MilligramSquareMillimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromMilligramSquareMillimeters(double milligramsquaremillimeters)
@@ -546,6 +577,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from PoundSquareFeet.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromPoundSquareFeet(double poundsquarefeet)
@@ -560,6 +592,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from PoundSquareInches.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromPoundSquareInches(double poundsquareinches)
@@ -572,8 +605,39 @@ namespace UnitsNet
         }
 
         /// <summary>
+        ///     Get MassMomentOfInertia from SlugSquareFeet.
+        /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
+#if WINDOWS_UWP
+        [Windows.Foundation.Metadata.DefaultOverload]
+        public static MassMomentOfInertia FromSlugSquareFeet(double slugsquarefeet)
+#else
+        public static MassMomentOfInertia FromSlugSquareFeet(QuantityValue slugsquarefeet)
+#endif
+        {
+            double value = (double) slugsquarefeet;
+            return new MassMomentOfInertia(value, MassMomentOfInertiaUnit.SlugSquareFoot);
+        }
+
+        /// <summary>
+        ///     Get MassMomentOfInertia from SlugSquareInches.
+        /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
+#if WINDOWS_UWP
+        [Windows.Foundation.Metadata.DefaultOverload]
+        public static MassMomentOfInertia FromSlugSquareInches(double slugsquareinches)
+#else
+        public static MassMomentOfInertia FromSlugSquareInches(QuantityValue slugsquareinches)
+#endif
+        {
+            double value = (double) slugsquareinches;
+            return new MassMomentOfInertia(value, MassMomentOfInertiaUnit.SlugSquareInch);
+        }
+
+        /// <summary>
         ///     Get MassMomentOfInertia from TonneSquareCentimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromTonneSquareCentimeters(double tonnesquarecentimeters)
@@ -588,6 +652,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from TonneSquareDecimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromTonneSquareDecimeters(double tonnesquaredecimeters)
@@ -602,6 +667,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from TonneSquareMeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromTonneSquareMeters(double tonnesquaremeters)
@@ -616,6 +682,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get MassMomentOfInertia from TonneSquareMilimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static MassMomentOfInertia FromTonneSquareMilimeters(double tonnesquaremilimeters)
@@ -797,6 +864,8 @@ namespace UnitsNet
                 case MassMomentOfInertiaUnit.MilligramSquareMillimeter: return (_value/1e9) * 1e-3d;
                 case MassMomentOfInertiaUnit.PoundSquareFoot: return _value*4.21401101e-2;
                 case MassMomentOfInertiaUnit.PoundSquareInch: return _value*2.9263965e-4;
+                case MassMomentOfInertiaUnit.SlugSquareFoot: return _value*1.3558179619;
+                case MassMomentOfInertiaUnit.SlugSquareInch: return _value*9.41540242e-3;
                 case MassMomentOfInertiaUnit.TonneSquareCentimeter: return _value/1e1;
                 case MassMomentOfInertiaUnit.TonneSquareDecimeter: return _value/1e-1;
                 case MassMomentOfInertiaUnit.TonneSquareMeter: return _value/1e-3;
@@ -837,6 +906,8 @@ namespace UnitsNet
                 case MassMomentOfInertiaUnit.MilligramSquareMillimeter: return (baseUnitValue*1e9) / 1e-3d;
                 case MassMomentOfInertiaUnit.PoundSquareFoot: return baseUnitValue/4.21401101e-2;
                 case MassMomentOfInertiaUnit.PoundSquareInch: return baseUnitValue/2.9263965e-4;
+                case MassMomentOfInertiaUnit.SlugSquareFoot: return baseUnitValue/1.3558179619;
+                case MassMomentOfInertiaUnit.SlugSquareInch: return baseUnitValue/9.41540242e-3;
                 case MassMomentOfInertiaUnit.TonneSquareCentimeter: return baseUnitValue*1e1;
                 case MassMomentOfInertiaUnit.TonneSquareDecimeter: return baseUnitValue*1e-1;
                 case MassMomentOfInertiaUnit.TonneSquareMeter: return baseUnitValue*1e-3;
@@ -874,7 +945,7 @@ namespace UnitsNet
         /// </exception>
         public static MassMomentOfInertia Parse(string str)
         {
-            return Parse(str, null);
+            return ParseInternal(str, null);
         }
 
         /// <summary>
@@ -887,7 +958,7 @@ namespace UnitsNet
         /// </example>
         public static bool TryParse([CanBeNull] string str, out MassMomentOfInertia result)
         {
-            return TryParse(str, null, out result);
+            return TryParseInternal(str, null, out result);
         }
 
         /// <summary>
@@ -901,7 +972,121 @@ namespace UnitsNet
         /// <exception cref="UnitsNetException">Error parsing string.</exception>
         public static MassMomentOfInertiaUnit ParseUnit(string str)
         {
-            return ParseUnit(str, (IFormatProvider)null);
+            return ParseUnitInternal(str, null);
+        }
+
+        public static bool TryParseUnit(string str, out MassMomentOfInertiaUnit unit)
+        {
+            return TryParseUnitInternal(str, null, out unit);
+        }
+
+        /// <summary>
+        ///     Parse a string with one or two quantities of the format "&lt;quantity&gt; &lt;unit&gt;".
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <example>
+        ///     Length.Parse("5.5 m", new CultureInfo("en-US"));
+        /// </example>
+        /// <exception cref="ArgumentNullException">The value of 'str' cannot be null. </exception>
+        /// <exception cref="ArgumentException">
+        ///     Expected string to have one or two pairs of quantity and unit in the format
+        ///     "&lt;quantity&gt; &lt;unit&gt;". Eg. "5.5 m" or "1ft 2in"
+        /// </exception>
+        /// <exception cref="AmbiguousUnitParseException">
+        ///     More than one unit is represented by the specified unit abbreviation.
+        ///     Example: Volume.Parse("1 cup") will throw, because it can refer to any of
+        ///     <see cref="VolumeUnit.MetricCup" />, <see cref="VolumeUnit.UsLegalCup" /> and <see cref="VolumeUnit.UsCustomaryCup" />.
+        /// </exception>
+        /// <exception cref="UnitsNetException">
+        ///     If anything else goes wrong, typically due to a bug or unhandled case.
+        ///     We wrap exceptions in <see cref="UnitsNetException" /> to allow you to distinguish
+        ///     Units.NET exceptions from other exceptions.
+        /// </exception>
+        private static MassMomentOfInertia ParseInternal(string str, [CanBeNull] IFormatProvider provider)
+        {
+            if (str == null) throw new ArgumentNullException(nameof(str));
+
+            provider = provider ?? GlobalConfiguration.DefaultCulture;
+
+            return QuantityParser.Default.Parse<MassMomentOfInertia, MassMomentOfInertiaUnit>(str, provider, ParseUnitInternal, From,
+                (x, y) => From(x.KilogramSquareMeters + y.KilogramSquareMeters, BaseUnit));
+        }
+
+        /// <summary>
+        ///     Try to parse a string with one or two quantities of the format "&lt;quantity&gt; &lt;unit&gt;".
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <param name="result">Resulting unit quantity if successful.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        /// <example>
+        ///     Length.Parse("5.5 m", new CultureInfo("en-US"));
+        /// </example>
+        private static bool TryParseInternal([CanBeNull] string str, [CanBeNull] IFormatProvider provider, out MassMomentOfInertia result)
+        {
+            result = default(MassMomentOfInertia);
+
+            if(string.IsNullOrWhiteSpace(str))
+                return false;
+
+            provider = provider ?? GlobalConfiguration.DefaultCulture;
+
+            return QuantityParser.Default.TryParse<MassMomentOfInertia, MassMomentOfInertiaUnit>(str, provider, TryParseUnitInternal, From,
+                (x, y) => From(x.KilogramSquareMeters + y.KilogramSquareMeters, BaseUnit), out result);
+        }
+
+        /// <summary>
+        ///     Parse a unit string.
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <example>
+        ///     Length.ParseUnit("m", new CultureInfo("en-US"));
+        /// </example>
+        /// <exception cref="ArgumentNullException">The value of 'str' cannot be null. </exception>
+        /// <exception cref="UnitsNetException">Error parsing string.</exception>
+        private static MassMomentOfInertiaUnit ParseUnitInternal(string str, IFormatProvider provider = null)
+        {
+            if (str == null) throw new ArgumentNullException(nameof(str));
+
+            var unit = UnitParser.Default.Parse<MassMomentOfInertiaUnit>(str.Trim(), provider);
+
+            if (unit == MassMomentOfInertiaUnit.Undefined)
+            {
+                var newEx = new UnitsNetException("Error parsing string. The unit is not a recognized MassMomentOfInertiaUnit.");
+                newEx.Data["input"] = str;
+                newEx.Data["provider"] = provider?.ToString() ?? "(null)";
+                throw newEx;
+            }
+
+            return unit;
+        }
+
+        /// <summary>
+        ///     Parse a unit string.
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <param name="unit">The parsed unit if successful.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        /// <example>
+        ///     Length.ParseUnit("m", new CultureInfo("en-US"));
+        /// </example>
+        private static bool TryParseUnitInternal(string str, IFormatProvider provider, out MassMomentOfInertiaUnit unit)
+        {
+            unit = MassMomentOfInertiaUnit.Undefined;
+
+            if(string.IsNullOrWhiteSpace(str))
+                return false;
+
+            if(!UnitParser.Default.TryParse<MassMomentOfInertiaUnit>(str.Trim(), provider, out unit))
+                return false;
+
+            if(unit == MassMomentOfInertiaUnit.Undefined)
+                return false;
+
+            return true;
         }
 
         #endregion

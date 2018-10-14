@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -64,6 +63,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new LinearDensity((double)0.0, LinearDensityUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new LinearDensity(double.PositiveInfinity, LinearDensityUnit.KilogramPerMeter));
+            Assert.Throws<ArgumentException>(() => new LinearDensity(double.NegativeInfinity, LinearDensityUnit.KilogramPerMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new LinearDensity(double.NaN, LinearDensityUnit.KilogramPerMeter));
+        }
+
+        [Fact]
         public void KilogramPerMeterToLinearDensityUnits()
         {
             LinearDensity kilogrampermeter = LinearDensity.FromKilogramsPerMeter(1);
@@ -78,6 +96,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, LinearDensity.From(1, LinearDensityUnit.GramPerMeter).GramsPerMeter, GramsPerMeterTolerance);
             AssertEx.EqualTolerance(1, LinearDensity.From(1, LinearDensityUnit.KilogramPerMeter).KilogramsPerMeter, KilogramsPerMeterTolerance);
             AssertEx.EqualTolerance(1, LinearDensity.From(1, LinearDensityUnit.PoundPerFoot).PoundsPerFoot, PoundsPerFootTolerance);
+        }
+
+        [Fact]
+        public void FromKilogramsPerMeter_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => LinearDensity.FromKilogramsPerMeter(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => LinearDensity.FromKilogramsPerMeter(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromKilogramsPerMeter_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => LinearDensity.FromKilogramsPerMeter(double.NaN));
         }
 
         [Fact]
@@ -197,5 +228,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(LinearDensityUnit.Undefined, LinearDensity.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(LinearDensityUnit)).Cast<LinearDensityUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == LinearDensityUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

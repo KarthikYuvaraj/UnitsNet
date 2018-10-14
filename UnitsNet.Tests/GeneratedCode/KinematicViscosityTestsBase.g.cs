@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -74,6 +73,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new KinematicViscosity((double)0.0, KinematicViscosityUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new KinematicViscosity(double.PositiveInfinity, KinematicViscosityUnit.SquareMeterPerSecond));
+            Assert.Throws<ArgumentException>(() => new KinematicViscosity(double.NegativeInfinity, KinematicViscosityUnit.SquareMeterPerSecond));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new KinematicViscosity(double.NaN, KinematicViscosityUnit.SquareMeterPerSecond));
+        }
+
+        [Fact]
         public void SquareMeterPerSecondToKinematicViscosityUnits()
         {
             KinematicViscosity squaremeterpersecond = KinematicViscosity.FromSquareMetersPerSecond(1);
@@ -98,6 +116,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, KinematicViscosity.From(1, KinematicViscosityUnit.Nanostokes).Nanostokes, NanostokesTolerance);
             AssertEx.EqualTolerance(1, KinematicViscosity.From(1, KinematicViscosityUnit.SquareMeterPerSecond).SquareMetersPerSecond, SquareMetersPerSecondTolerance);
             AssertEx.EqualTolerance(1, KinematicViscosity.From(1, KinematicViscosityUnit.Stokes).Stokes, StokesTolerance);
+        }
+
+        [Fact]
+        public void FromSquareMetersPerSecond_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => KinematicViscosity.FromSquareMetersPerSecond(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => KinematicViscosity.FromSquareMetersPerSecond(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromSquareMetersPerSecond_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => KinematicViscosity.FromSquareMetersPerSecond(double.NaN));
         }
 
         [Fact]
@@ -247,5 +278,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(KinematicViscosityUnit.Undefined, KinematicViscosity.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(KinematicViscosityUnit)).Cast<KinematicViscosityUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == KinematicViscosityUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

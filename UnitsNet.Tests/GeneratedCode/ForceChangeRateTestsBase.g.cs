@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -80,6 +79,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ForceChangeRate((double)0.0, ForceChangeRateUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ForceChangeRate(double.PositiveInfinity, ForceChangeRateUnit.NewtonPerSecond));
+            Assert.Throws<ArgumentException>(() => new ForceChangeRate(double.NegativeInfinity, ForceChangeRateUnit.NewtonPerSecond));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ForceChangeRate(double.NaN, ForceChangeRateUnit.NewtonPerSecond));
+        }
+
+        [Fact]
         public void NewtonPerSecondToForceChangeRateUnits()
         {
             ForceChangeRate newtonpersecond = ForceChangeRate.FromNewtonsPerSecond(1);
@@ -110,6 +128,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, ForceChangeRate.From(1, ForceChangeRateUnit.NanonewtonPerSecond).NanonewtonsPerSecond, NanonewtonsPerSecondTolerance);
             AssertEx.EqualTolerance(1, ForceChangeRate.From(1, ForceChangeRateUnit.NewtonPerMinute).NewtonsPerMinute, NewtonsPerMinuteTolerance);
             AssertEx.EqualTolerance(1, ForceChangeRate.From(1, ForceChangeRateUnit.NewtonPerSecond).NewtonsPerSecond, NewtonsPerSecondTolerance);
+        }
+
+        [Fact]
+        public void FromNewtonsPerSecond_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ForceChangeRate.FromNewtonsPerSecond(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => ForceChangeRate.FromNewtonsPerSecond(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromNewtonsPerSecond_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ForceChangeRate.FromNewtonsPerSecond(double.NaN));
         }
 
         [Fact]
@@ -277,5 +308,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ForceChangeRateUnit.Undefined, ForceChangeRate.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ForceChangeRateUnit)).Cast<ForceChangeRateUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ForceChangeRateUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

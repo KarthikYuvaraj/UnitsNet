@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -78,6 +77,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Duration((double)0.0, DurationUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Duration(double.PositiveInfinity, DurationUnit.Second));
+            Assert.Throws<ArgumentException>(() => new Duration(double.NegativeInfinity, DurationUnit.Second));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Duration(double.NaN, DurationUnit.Second));
+        }
+
+        [Fact]
         public void SecondToDurationUnits()
         {
             Duration second = Duration.FromSeconds(1);
@@ -106,6 +124,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, Duration.From(1, DurationUnit.Second).Seconds, SecondsTolerance);
             AssertEx.EqualTolerance(1, Duration.From(1, DurationUnit.Week).Weeks, WeeksTolerance);
             AssertEx.EqualTolerance(1, Duration.From(1, DurationUnit.Year365).Years365, Years365Tolerance);
+        }
+
+        [Fact]
+        public void FromSeconds_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Duration.FromSeconds(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Duration.FromSeconds(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromSeconds_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Duration.FromSeconds(double.NaN));
         }
 
         [Fact]
@@ -267,5 +298,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(DurationUnit.Undefined, Duration.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(DurationUnit)).Cast<DurationUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == DurationUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

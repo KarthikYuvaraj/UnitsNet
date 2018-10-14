@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -66,6 +65,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new AmplitudeRatio((double)0.0, AmplitudeRatioUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new AmplitudeRatio(double.PositiveInfinity, AmplitudeRatioUnit.DecibelVolt));
+            Assert.Throws<ArgumentException>(() => new AmplitudeRatio(double.NegativeInfinity, AmplitudeRatioUnit.DecibelVolt));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new AmplitudeRatio(double.NaN, AmplitudeRatioUnit.DecibelVolt));
+        }
+
+        [Fact]
         public void DecibelVoltToAmplitudeRatioUnits()
         {
             AmplitudeRatio decibelvolt = AmplitudeRatio.FromDecibelVolts(1);
@@ -82,6 +100,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, AmplitudeRatio.From(1, AmplitudeRatioUnit.DecibelMillivolt).DecibelMillivolts, DecibelMillivoltsTolerance);
             AssertEx.EqualTolerance(1, AmplitudeRatio.From(1, AmplitudeRatioUnit.DecibelUnloaded).DecibelsUnloaded, DecibelsUnloadedTolerance);
             AssertEx.EqualTolerance(1, AmplitudeRatio.From(1, AmplitudeRatioUnit.DecibelVolt).DecibelVolts, DecibelVoltsTolerance);
+        }
+
+        [Fact]
+        public void FromDecibelVolts_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => AmplitudeRatio.FromDecibelVolts(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => AmplitudeRatio.FromDecibelVolts(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromDecibelVolts_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => AmplitudeRatio.FromDecibelVolts(double.NaN));
         }
 
         [Fact]
@@ -212,5 +243,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(AmplitudeRatioUnit.Undefined, AmplitudeRatio.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(AmplitudeRatioUnit)).Cast<AmplitudeRatioUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == AmplitudeRatioUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

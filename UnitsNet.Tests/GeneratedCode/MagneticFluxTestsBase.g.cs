@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -60,6 +59,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new MagneticFlux((double)0.0, MagneticFluxUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new MagneticFlux(double.PositiveInfinity, MagneticFluxUnit.Weber));
+            Assert.Throws<ArgumentException>(() => new MagneticFlux(double.NegativeInfinity, MagneticFluxUnit.Weber));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new MagneticFlux(double.NaN, MagneticFluxUnit.Weber));
+        }
+
+        [Fact]
         public void WeberToMagneticFluxUnits()
         {
             MagneticFlux weber = MagneticFlux.FromWebers(1);
@@ -70,6 +88,19 @@ namespace UnitsNet.Tests
         public void FromValueAndUnit()
         {
             AssertEx.EqualTolerance(1, MagneticFlux.From(1, MagneticFluxUnit.Weber).Webers, WebersTolerance);
+        }
+
+        [Fact]
+        public void FromWebers_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => MagneticFlux.FromWebers(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => MagneticFlux.FromWebers(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromWebers_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => MagneticFlux.FromWebers(double.NaN));
         }
 
         [Fact]
@@ -177,5 +208,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(MagneticFluxUnit.Undefined, MagneticFlux.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(MagneticFluxUnit)).Cast<MagneticFluxUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == MagneticFluxUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -84,6 +83,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Area((double)0.0, AreaUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Area(double.PositiveInfinity, AreaUnit.SquareMeter));
+            Assert.Throws<ArgumentException>(() => new Area(double.NegativeInfinity, AreaUnit.SquareMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Area(double.NaN, AreaUnit.SquareMeter));
+        }
+
+        [Fact]
         public void SquareMeterToAreaUnits()
         {
             Area squaremeter = Area.FromSquareMeters(1);
@@ -118,6 +136,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, Area.From(1, AreaUnit.SquareMillimeter).SquareMillimeters, SquareMillimetersTolerance);
             AssertEx.EqualTolerance(1, Area.From(1, AreaUnit.SquareYard).SquareYards, SquareYardsTolerance);
             AssertEx.EqualTolerance(1, Area.From(1, AreaUnit.UsSurveySquareFoot).UsSurveySquareFeet, UsSurveySquareFeetTolerance);
+        }
+
+        [Fact]
+        public void FromSquareMeters_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Area.FromSquareMeters(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Area.FromSquareMeters(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromSquareMeters_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Area.FromSquareMeters(double.NaN));
         }
 
         [Fact]
@@ -297,5 +328,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(AreaUnit.Undefined, Area.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(AreaUnit)).Cast<AreaUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == AreaUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

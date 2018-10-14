@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -110,6 +109,13 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new BitRate((decimal)0.0, BitRateUnit.Undefined));
+        }
+
+
+        [Fact]
         public void BitPerSecondToBitRateUnits()
         {
             BitRate bitpersecond = BitRate.FromBitsPerSecond(1);
@@ -171,6 +177,7 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, BitRate.From(1, BitRateUnit.TerabitPerSecond).TerabitsPerSecond, TerabitsPerSecondTolerance);
             AssertEx.EqualTolerance(1, BitRate.From(1, BitRateUnit.TerabytePerSecond).TerabytesPerSecond, TerabytesPerSecondTolerance);
         }
+
 
         [Fact]
         public void As()
@@ -427,5 +434,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(BitRateUnit.Undefined, BitRate.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(BitRateUnit)).Cast<BitRateUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == BitRateUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

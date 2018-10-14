@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -60,6 +59,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricCharge((double)0.0, ElectricChargeUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricCharge(double.PositiveInfinity, ElectricChargeUnit.Coulomb));
+            Assert.Throws<ArgumentException>(() => new ElectricCharge(double.NegativeInfinity, ElectricChargeUnit.Coulomb));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricCharge(double.NaN, ElectricChargeUnit.Coulomb));
+        }
+
+        [Fact]
         public void CoulombToElectricChargeUnits()
         {
             ElectricCharge coulomb = ElectricCharge.FromCoulombs(1);
@@ -70,6 +88,19 @@ namespace UnitsNet.Tests
         public void FromValueAndUnit()
         {
             AssertEx.EqualTolerance(1, ElectricCharge.From(1, ElectricChargeUnit.Coulomb).Coulombs, CoulombsTolerance);
+        }
+
+        [Fact]
+        public void FromCoulombs_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricCharge.FromCoulombs(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => ElectricCharge.FromCoulombs(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromCoulombs_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricCharge.FromCoulombs(double.NaN));
         }
 
         [Fact]
@@ -177,5 +208,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ElectricChargeUnit.Undefined, ElectricCharge.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ElectricChargeUnit)).Cast<ElectricChargeUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ElectricChargeUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

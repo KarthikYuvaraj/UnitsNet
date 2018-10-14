@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -88,6 +87,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new MassFlow((double)0.0, MassFlowUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new MassFlow(double.PositiveInfinity, MassFlowUnit.GramPerSecond));
+            Assert.Throws<ArgumentException>(() => new MassFlow(double.NegativeInfinity, MassFlowUnit.GramPerSecond));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new MassFlow(double.NaN, MassFlowUnit.GramPerSecond));
+        }
+
+        [Fact]
         public void GramPerSecondToMassFlowUnits()
         {
             MassFlow grampersecond = MassFlow.FromGramsPerSecond(1);
@@ -126,6 +144,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, MassFlow.From(1, MassFlowUnit.ShortTonPerHour).ShortTonsPerHour, ShortTonsPerHourTolerance);
             AssertEx.EqualTolerance(1, MassFlow.From(1, MassFlowUnit.TonnePerDay).TonnesPerDay, TonnesPerDayTolerance);
             AssertEx.EqualTolerance(1, MassFlow.From(1, MassFlowUnit.TonnePerHour).TonnesPerHour, TonnesPerHourTolerance);
+        }
+
+        [Fact]
+        public void FromGramsPerSecond_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => MassFlow.FromGramsPerSecond(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => MassFlow.FromGramsPerSecond(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromGramsPerSecond_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => MassFlow.FromGramsPerSecond(double.NaN));
         }
 
         [Fact]
@@ -317,5 +348,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(MassFlowUnit.Undefined, MassFlow.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(MassFlowUnit)).Cast<MassFlowUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == MassFlowUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

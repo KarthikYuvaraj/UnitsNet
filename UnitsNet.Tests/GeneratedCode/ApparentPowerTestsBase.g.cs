@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -66,6 +65,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ApparentPower((double)0.0, ApparentPowerUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ApparentPower(double.PositiveInfinity, ApparentPowerUnit.Voltampere));
+            Assert.Throws<ArgumentException>(() => new ApparentPower(double.NegativeInfinity, ApparentPowerUnit.Voltampere));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ApparentPower(double.NaN, ApparentPowerUnit.Voltampere));
+        }
+
+        [Fact]
         public void VoltampereToApparentPowerUnits()
         {
             ApparentPower voltampere = ApparentPower.FromVoltamperes(1);
@@ -82,6 +100,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, ApparentPower.From(1, ApparentPowerUnit.Kilovoltampere).Kilovoltamperes, KilovoltamperesTolerance);
             AssertEx.EqualTolerance(1, ApparentPower.From(1, ApparentPowerUnit.Megavoltampere).Megavoltamperes, MegavoltamperesTolerance);
             AssertEx.EqualTolerance(1, ApparentPower.From(1, ApparentPowerUnit.Voltampere).Voltamperes, VoltamperesTolerance);
+        }
+
+        [Fact]
+        public void FromVoltamperes_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ApparentPower.FromVoltamperes(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => ApparentPower.FromVoltamperes(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromVoltamperes_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ApparentPower.FromVoltamperes(double.NaN));
         }
 
         [Fact]
@@ -207,5 +238,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ApparentPowerUnit.Undefined, ApparentPower.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ApparentPowerUnit)).Cast<ApparentPowerUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ApparentPowerUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

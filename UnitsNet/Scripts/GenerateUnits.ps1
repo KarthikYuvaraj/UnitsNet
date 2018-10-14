@@ -75,8 +75,8 @@ function GenerateUnitType($quantity, $outDir)
 
 function GenerateUnitSystemDefault($quantities, $outDir)
 {
-    Write-Host -NoNewline "UnitSystem.Default.g.cs: "
-    $outFileName = "$outDir/UnitSystem.Default.g.cs"
+    Write-Host -NoNewline "UnitAbbreviationsCache.g.cs: "
+    $outFileName = "$outDir/UnitAbbreviationsCache.g.cs"
 
     GenerateUnitSystemDefaultSourceCode $quantities | Out-File -Encoding "UTF8" -Force $outFileName | Out-Null
     if (!$?) {
@@ -97,22 +97,6 @@ function GenerateQuantityType($quantities, $outDir)
         exit 1
     }
     Write-Host "(OK) "
-}
-
-function GenerateNumberExtensions($quantity, $numberExtensionsDir)
-{
-    $outDir = "$numberExtensionsDir"
-    $fileName = "NumberTo$($quantity.Name)Extensions.g.cs"
-    $outFilePath = "$outDir/$fileName"
-    EnsureDirExists $outDir
-    Write-Host -NoNewline "NumberExtensions"
-
-    GenerateNumberExtensionsSourceCode $quantity | Out-File -Encoding "UTF8" -Force $outFilePath | Out-Null
-    if (!$?) {
-        Write-Host -NoNewline "(error) "
-        exit 1
-    }
-    Write-Host -NoNewline "(OK) "
 }
 
 function EnsureDirExists([String] $dirPath) {
@@ -259,7 +243,6 @@ function Add-InheritedUnits($quantity, $quantities) {
 # Load external generator functions with same name as file
 . "$PSScriptRoot/Include-GenerateTemplates.ps1"
 . "$PSScriptRoot/Include-GenerateLogarithmicCode.ps1"
-. "$PSScriptRoot/Include-GenerateNumberExtensionsSourceCode.ps1"
 . "$PSScriptRoot/Include-GenerateUnitSystemDefaultSourceCode.ps1"
 . "$PSScriptRoot/Include-GenerateQuantityTypeSourceCode.ps1"
 . "$PSScriptRoot/Include-GenerateQuantitySourceCodeCommon.ps1"
@@ -273,7 +256,6 @@ EnsureDirExists ($quantityDir = "$PSScriptRoot/../GeneratedCode/Quantities")
 EnsureDirExists ($unitEnumDir = "$PSScriptRoot/../GeneratedCode/Units")
 EnsureDirExists ($unitSystemDir = "$PSScriptRoot/../GeneratedCode")
 EnsureDirExists ($testsDir = "$PSScriptRoot/../../UnitsNet.Tests/GeneratedCode")
-EnsureDirExists ($numberExtensionsDir = "$PSScriptRoot/../GeneratedCode/Extensions/Number")
 EnsureDirExists ($testsCustomCodeDir = "$PSScriptRoot/../../UnitsNet.Tests/CustomCode")
 
 $templatesDir = "$PSScriptRoot/../../Common/UnitDefinitions"
@@ -295,7 +277,6 @@ foreach ($quantity in $quantities) {
 
     GenerateQuantity $quantity $quantityDir
     GenerateUnitType $quantity $unitEnumDir
-    GenerateNumberExtensions $quantity $numberExtensionsDir
     GenerateUnitTestBaseClass $quantity $testsDir
     GenerateUnitTestClassIfNotExists $quantity $testsCustomCodeDir
 

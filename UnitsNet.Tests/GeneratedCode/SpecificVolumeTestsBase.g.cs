@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -62,6 +61,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new SpecificVolume((double)0.0, SpecificVolumeUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new SpecificVolume(double.PositiveInfinity, SpecificVolumeUnit.CubicMeterPerKilogram));
+            Assert.Throws<ArgumentException>(() => new SpecificVolume(double.NegativeInfinity, SpecificVolumeUnit.CubicMeterPerKilogram));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new SpecificVolume(double.NaN, SpecificVolumeUnit.CubicMeterPerKilogram));
+        }
+
+        [Fact]
         public void CubicMeterPerKilogramToSpecificVolumeUnits()
         {
             SpecificVolume cubicmeterperkilogram = SpecificVolume.FromCubicMetersPerKilogram(1);
@@ -74,6 +92,19 @@ namespace UnitsNet.Tests
         {
             AssertEx.EqualTolerance(1, SpecificVolume.From(1, SpecificVolumeUnit.CubicFootPerPound).CubicFeetPerPound, CubicFeetPerPoundTolerance);
             AssertEx.EqualTolerance(1, SpecificVolume.From(1, SpecificVolumeUnit.CubicMeterPerKilogram).CubicMetersPerKilogram, CubicMetersPerKilogramTolerance);
+        }
+
+        [Fact]
+        public void FromCubicMetersPerKilogram_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => SpecificVolume.FromCubicMetersPerKilogram(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => SpecificVolume.FromCubicMetersPerKilogram(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromCubicMetersPerKilogram_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => SpecificVolume.FromCubicMetersPerKilogram(double.NaN));
         }
 
         [Fact]
@@ -187,5 +218,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(SpecificVolumeUnit.Undefined, SpecificVolume.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(SpecificVolumeUnit)).Cast<SpecificVolumeUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == SpecificVolumeUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

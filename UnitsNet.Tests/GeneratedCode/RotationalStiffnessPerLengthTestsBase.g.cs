@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -64,6 +63,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new RotationalStiffnessPerLength((double)0.0, RotationalStiffnessPerLengthUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new RotationalStiffnessPerLength(double.PositiveInfinity, RotationalStiffnessPerLengthUnit.NewtonMeterPerRadianPerMeter));
+            Assert.Throws<ArgumentException>(() => new RotationalStiffnessPerLength(double.NegativeInfinity, RotationalStiffnessPerLengthUnit.NewtonMeterPerRadianPerMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new RotationalStiffnessPerLength(double.NaN, RotationalStiffnessPerLengthUnit.NewtonMeterPerRadianPerMeter));
+        }
+
+        [Fact]
         public void NewtonMeterPerRadianPerMeterToRotationalStiffnessPerLengthUnits()
         {
             RotationalStiffnessPerLength newtonmeterperradianpermeter = RotationalStiffnessPerLength.FromNewtonMetersPerRadianPerMeter(1);
@@ -78,6 +96,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, RotationalStiffnessPerLength.From(1, RotationalStiffnessPerLengthUnit.KilonewtonMeterPerRadianPerMeter).KilonewtonMetersPerRadianPerMeter, KilonewtonMetersPerRadianPerMeterTolerance);
             AssertEx.EqualTolerance(1, RotationalStiffnessPerLength.From(1, RotationalStiffnessPerLengthUnit.MeganewtonMeterPerRadianPerMeter).MeganewtonMetersPerRadianPerMeter, MeganewtonMetersPerRadianPerMeterTolerance);
             AssertEx.EqualTolerance(1, RotationalStiffnessPerLength.From(1, RotationalStiffnessPerLengthUnit.NewtonMeterPerRadianPerMeter).NewtonMetersPerRadianPerMeter, NewtonMetersPerRadianPerMeterTolerance);
+        }
+
+        [Fact]
+        public void FromNewtonMetersPerRadianPerMeter_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => RotationalStiffnessPerLength.FromNewtonMetersPerRadianPerMeter(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => RotationalStiffnessPerLength.FromNewtonMetersPerRadianPerMeter(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromNewtonMetersPerRadianPerMeter_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => RotationalStiffnessPerLength.FromNewtonMetersPerRadianPerMeter(double.NaN));
         }
 
         [Fact]
@@ -197,5 +228,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(RotationalStiffnessPerLengthUnit.Undefined, RotationalStiffnessPerLength.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(RotationalStiffnessPerLengthUnit)).Cast<RotationalStiffnessPerLengthUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == RotationalStiffnessPerLengthUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

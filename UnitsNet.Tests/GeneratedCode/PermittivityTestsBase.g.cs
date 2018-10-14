@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -60,6 +59,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Permittivity((double)0.0, PermittivityUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Permittivity(double.PositiveInfinity, PermittivityUnit.FaradPerMeter));
+            Assert.Throws<ArgumentException>(() => new Permittivity(double.NegativeInfinity, PermittivityUnit.FaradPerMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Permittivity(double.NaN, PermittivityUnit.FaradPerMeter));
+        }
+
+        [Fact]
         public void FaradPerMeterToPermittivityUnits()
         {
             Permittivity faradpermeter = Permittivity.FromFaradsPerMeter(1);
@@ -70,6 +88,19 @@ namespace UnitsNet.Tests
         public void FromValueAndUnit()
         {
             AssertEx.EqualTolerance(1, Permittivity.From(1, PermittivityUnit.FaradPerMeter).FaradsPerMeter, FaradsPerMeterTolerance);
+        }
+
+        [Fact]
+        public void FromFaradsPerMeter_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Permittivity.FromFaradsPerMeter(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Permittivity.FromFaradsPerMeter(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromFaradsPerMeter_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Permittivity.FromFaradsPerMeter(double.NaN));
         }
 
         [Fact]
@@ -177,5 +208,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(PermittivityUnit.Undefined, Permittivity.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(PermittivityUnit)).Cast<PermittivityUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == PermittivityUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

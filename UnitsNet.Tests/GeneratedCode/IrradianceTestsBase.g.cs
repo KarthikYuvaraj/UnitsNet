@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -62,6 +61,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Irradiance((double)0.0, IrradianceUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Irradiance(double.PositiveInfinity, IrradianceUnit.WattPerSquareMeter));
+            Assert.Throws<ArgumentException>(() => new Irradiance(double.NegativeInfinity, IrradianceUnit.WattPerSquareMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Irradiance(double.NaN, IrradianceUnit.WattPerSquareMeter));
+        }
+
+        [Fact]
         public void WattPerSquareMeterToIrradianceUnits()
         {
             Irradiance wattpersquaremeter = Irradiance.FromWattsPerSquareMeter(1);
@@ -74,6 +92,19 @@ namespace UnitsNet.Tests
         {
             AssertEx.EqualTolerance(1, Irradiance.From(1, IrradianceUnit.KilowattPerSquareMeter).KilowattsPerSquareMeter, KilowattsPerSquareMeterTolerance);
             AssertEx.EqualTolerance(1, Irradiance.From(1, IrradianceUnit.WattPerSquareMeter).WattsPerSquareMeter, WattsPerSquareMeterTolerance);
+        }
+
+        [Fact]
+        public void FromWattsPerSquareMeter_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Irradiance.FromWattsPerSquareMeter(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Irradiance.FromWattsPerSquareMeter(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromWattsPerSquareMeter_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Irradiance.FromWattsPerSquareMeter(double.NaN));
         }
 
         [Fact]
@@ -187,5 +218,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(IrradianceUnit.Undefined, Irradiance.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(IrradianceUnit)).Cast<IrradianceUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == IrradianceUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

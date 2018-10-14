@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -68,6 +67,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricPotentialAc((double)0.0, ElectricPotentialAcUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricPotentialAc(double.PositiveInfinity, ElectricPotentialAcUnit.VoltAc));
+            Assert.Throws<ArgumentException>(() => new ElectricPotentialAc(double.NegativeInfinity, ElectricPotentialAcUnit.VoltAc));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricPotentialAc(double.NaN, ElectricPotentialAcUnit.VoltAc));
+        }
+
+        [Fact]
         public void VoltAcToElectricPotentialAcUnits()
         {
             ElectricPotentialAc voltac = ElectricPotentialAc.FromVoltsAc(1);
@@ -86,6 +104,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, ElectricPotentialAc.From(1, ElectricPotentialAcUnit.MicrovoltAc).MicrovoltsAc, MicrovoltsAcTolerance);
             AssertEx.EqualTolerance(1, ElectricPotentialAc.From(1, ElectricPotentialAcUnit.MillivoltAc).MillivoltsAc, MillivoltsAcTolerance);
             AssertEx.EqualTolerance(1, ElectricPotentialAc.From(1, ElectricPotentialAcUnit.VoltAc).VoltsAc, VoltsAcTolerance);
+        }
+
+        [Fact]
+        public void FromVoltsAc_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricPotentialAc.FromVoltsAc(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => ElectricPotentialAc.FromVoltsAc(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromVoltsAc_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricPotentialAc.FromVoltsAc(double.NaN));
         }
 
         [Fact]
@@ -217,5 +248,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ElectricPotentialAcUnit.Undefined, ElectricPotentialAc.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ElectricPotentialAcUnit)).Cast<ElectricPotentialAcUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ElectricPotentialAcUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

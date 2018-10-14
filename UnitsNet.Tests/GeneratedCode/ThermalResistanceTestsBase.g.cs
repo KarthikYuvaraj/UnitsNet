@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -68,6 +67,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ThermalResistance((double)0.0, ThermalResistanceUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ThermalResistance(double.PositiveInfinity, ThermalResistanceUnit.SquareMeterKelvinPerKilowatt));
+            Assert.Throws<ArgumentException>(() => new ThermalResistance(double.NegativeInfinity, ThermalResistanceUnit.SquareMeterKelvinPerKilowatt));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ThermalResistance(double.NaN, ThermalResistanceUnit.SquareMeterKelvinPerKilowatt));
+        }
+
+        [Fact]
         public void SquareMeterKelvinPerKilowattToThermalResistanceUnits()
         {
             ThermalResistance squaremeterkelvinperkilowatt = ThermalResistance.FromSquareMeterKelvinsPerKilowatt(1);
@@ -86,6 +104,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, ThermalResistance.From(1, ThermalResistanceUnit.SquareCentimeterKelvinPerWatt).SquareCentimeterKelvinsPerWatt, SquareCentimeterKelvinsPerWattTolerance);
             AssertEx.EqualTolerance(1, ThermalResistance.From(1, ThermalResistanceUnit.SquareMeterDegreeCelsiusPerWatt).SquareMeterDegreesCelsiusPerWatt, SquareMeterDegreesCelsiusPerWattTolerance);
             AssertEx.EqualTolerance(1, ThermalResistance.From(1, ThermalResistanceUnit.SquareMeterKelvinPerKilowatt).SquareMeterKelvinsPerKilowatt, SquareMeterKelvinsPerKilowattTolerance);
+        }
+
+        [Fact]
+        public void FromSquareMeterKelvinsPerKilowatt_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ThermalResistance.FromSquareMeterKelvinsPerKilowatt(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => ThermalResistance.FromSquareMeterKelvinsPerKilowatt(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromSquareMeterKelvinsPerKilowatt_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ThermalResistance.FromSquareMeterKelvinsPerKilowatt(double.NaN));
         }
 
         [Fact]
@@ -217,5 +248,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ThermalResistanceUnit.Undefined, ThermalResistance.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ThermalResistanceUnit)).Cast<ThermalResistanceUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ThermalResistanceUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

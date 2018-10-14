@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -60,6 +59,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Capacitance((double)0.0, CapacitanceUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Capacitance(double.PositiveInfinity, CapacitanceUnit.Farad));
+            Assert.Throws<ArgumentException>(() => new Capacitance(double.NegativeInfinity, CapacitanceUnit.Farad));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Capacitance(double.NaN, CapacitanceUnit.Farad));
+        }
+
+        [Fact]
         public void FaradToCapacitanceUnits()
         {
             Capacitance farad = Capacitance.FromFarads(1);
@@ -70,6 +88,19 @@ namespace UnitsNet.Tests
         public void FromValueAndUnit()
         {
             AssertEx.EqualTolerance(1, Capacitance.From(1, CapacitanceUnit.Farad).Farads, FaradsTolerance);
+        }
+
+        [Fact]
+        public void FromFarads_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Capacitance.FromFarads(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Capacitance.FromFarads(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromFarads_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Capacitance.FromFarads(double.NaN));
         }
 
         [Fact]
@@ -177,5 +208,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(CapacitanceUnit.Undefined, Capacitance.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(CapacitanceUnit)).Cast<CapacitanceUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == CapacitanceUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -37,11 +36,9 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Linq;
 using JetBrains.Annotations;
+using UnitsNet.InternalHelpers;
 using UnitsNet.Units;
 
 // ReSharper disable once CheckNamespace
@@ -85,9 +82,10 @@ namespace UnitsNet
         /// <summary>
         ///     Creates the quantity with the given numeric value and unit.
         /// </summary>
-        /// <param name="numericValue">Numeric value.</param>
+        /// <param name="numericValue">The numeric value  to contruct this quantity with.</param>
         /// <param name="unit">The unit representation to contruct this quantity with.</param>
         /// <remarks>Value parameter cannot be named 'value' due to constraint when targeting Windows Runtime Component.</remarks>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         private
 #else
@@ -95,7 +93,10 @@ namespace UnitsNet
 #endif
         PowerDensity(double numericValue, PowerDensityUnit unit)
         {
-            _value = numericValue;
+            if(unit == PowerDensityUnit.Undefined)
+              throw new ArgumentException("The quantity can not be created with an undefined unit.", nameof(unit));
+
+            _value = Guard.EnsureValidNumber(numericValue, nameof(numericValue));
             _unit = unit;
         }
 
@@ -356,6 +357,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from DecawattsPerCubicFoot.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromDecawattsPerCubicFoot(double decawattspercubicfoot)
@@ -370,6 +372,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from DecawattsPerCubicInch.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromDecawattsPerCubicInch(double decawattspercubicinch)
@@ -384,6 +387,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from DecawattsPerCubicMeter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromDecawattsPerCubicMeter(double decawattspercubicmeter)
@@ -398,6 +402,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from DecawattsPerLiter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromDecawattsPerLiter(double decawattsperliter)
@@ -412,6 +417,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from DeciwattsPerCubicFoot.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromDeciwattsPerCubicFoot(double deciwattspercubicfoot)
@@ -426,6 +432,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from DeciwattsPerCubicInch.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromDeciwattsPerCubicInch(double deciwattspercubicinch)
@@ -440,6 +447,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from DeciwattsPerCubicMeter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromDeciwattsPerCubicMeter(double deciwattspercubicmeter)
@@ -454,6 +462,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from DeciwattsPerLiter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromDeciwattsPerLiter(double deciwattsperliter)
@@ -468,6 +477,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from GigawattsPerCubicFoot.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromGigawattsPerCubicFoot(double gigawattspercubicfoot)
@@ -482,6 +492,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from GigawattsPerCubicInch.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromGigawattsPerCubicInch(double gigawattspercubicinch)
@@ -496,6 +507,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from GigawattsPerCubicMeter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromGigawattsPerCubicMeter(double gigawattspercubicmeter)
@@ -510,6 +522,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from GigawattsPerLiter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromGigawattsPerLiter(double gigawattsperliter)
@@ -524,6 +537,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from KilowattsPerCubicFoot.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromKilowattsPerCubicFoot(double kilowattspercubicfoot)
@@ -538,6 +552,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from KilowattsPerCubicInch.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromKilowattsPerCubicInch(double kilowattspercubicinch)
@@ -552,6 +567,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from KilowattsPerCubicMeter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromKilowattsPerCubicMeter(double kilowattspercubicmeter)
@@ -566,6 +582,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from KilowattsPerLiter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromKilowattsPerLiter(double kilowattsperliter)
@@ -580,6 +597,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from MegawattsPerCubicFoot.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromMegawattsPerCubicFoot(double megawattspercubicfoot)
@@ -594,6 +612,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from MegawattsPerCubicInch.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromMegawattsPerCubicInch(double megawattspercubicinch)
@@ -608,6 +627,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from MegawattsPerCubicMeter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromMegawattsPerCubicMeter(double megawattspercubicmeter)
@@ -622,6 +642,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from MegawattsPerLiter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromMegawattsPerLiter(double megawattsperliter)
@@ -636,6 +657,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from MicrowattsPerCubicFoot.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromMicrowattsPerCubicFoot(double microwattspercubicfoot)
@@ -650,6 +672,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from MicrowattsPerCubicInch.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromMicrowattsPerCubicInch(double microwattspercubicinch)
@@ -664,6 +687,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from MicrowattsPerCubicMeter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromMicrowattsPerCubicMeter(double microwattspercubicmeter)
@@ -678,6 +702,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from MicrowattsPerLiter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromMicrowattsPerLiter(double microwattsperliter)
@@ -692,6 +717,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from MilliwattsPerCubicFoot.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromMilliwattsPerCubicFoot(double milliwattspercubicfoot)
@@ -706,6 +732,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from MilliwattsPerCubicInch.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromMilliwattsPerCubicInch(double milliwattspercubicinch)
@@ -720,6 +747,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from MilliwattsPerCubicMeter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromMilliwattsPerCubicMeter(double milliwattspercubicmeter)
@@ -734,6 +762,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from MilliwattsPerLiter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromMilliwattsPerLiter(double milliwattsperliter)
@@ -748,6 +777,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from NanowattsPerCubicFoot.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromNanowattsPerCubicFoot(double nanowattspercubicfoot)
@@ -762,6 +792,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from NanowattsPerCubicInch.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromNanowattsPerCubicInch(double nanowattspercubicinch)
@@ -776,6 +807,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from NanowattsPerCubicMeter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromNanowattsPerCubicMeter(double nanowattspercubicmeter)
@@ -790,6 +822,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from NanowattsPerLiter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromNanowattsPerLiter(double nanowattsperliter)
@@ -804,6 +837,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from PicowattsPerCubicFoot.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromPicowattsPerCubicFoot(double picowattspercubicfoot)
@@ -818,6 +852,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from PicowattsPerCubicInch.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromPicowattsPerCubicInch(double picowattspercubicinch)
@@ -832,6 +867,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from PicowattsPerCubicMeter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromPicowattsPerCubicMeter(double picowattspercubicmeter)
@@ -846,6 +882,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from PicowattsPerLiter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromPicowattsPerLiter(double picowattsperliter)
@@ -860,6 +897,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from TerawattsPerCubicFoot.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromTerawattsPerCubicFoot(double terawattspercubicfoot)
@@ -874,6 +912,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from TerawattsPerCubicInch.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromTerawattsPerCubicInch(double terawattspercubicinch)
@@ -888,6 +927,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from TerawattsPerCubicMeter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromTerawattsPerCubicMeter(double terawattspercubicmeter)
@@ -902,6 +942,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from TerawattsPerLiter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromTerawattsPerLiter(double terawattsperliter)
@@ -916,6 +957,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from WattsPerCubicFoot.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromWattsPerCubicFoot(double wattspercubicfoot)
@@ -930,6 +972,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from WattsPerCubicInch.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromWattsPerCubicInch(double wattspercubicinch)
@@ -944,6 +987,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from WattsPerCubicMeter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromWattsPerCubicMeter(double wattspercubicmeter)
@@ -958,6 +1002,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get PowerDensity from WattsPerLiter.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static PowerDensity FromWattsPerLiter(double wattsperliter)
@@ -1252,7 +1297,7 @@ namespace UnitsNet
         /// </exception>
         public static PowerDensity Parse(string str)
         {
-            return Parse(str, null);
+            return ParseInternal(str, null);
         }
 
         /// <summary>
@@ -1265,7 +1310,7 @@ namespace UnitsNet
         /// </example>
         public static bool TryParse([CanBeNull] string str, out PowerDensity result)
         {
-            return TryParse(str, null, out result);
+            return TryParseInternal(str, null, out result);
         }
 
         /// <summary>
@@ -1279,7 +1324,121 @@ namespace UnitsNet
         /// <exception cref="UnitsNetException">Error parsing string.</exception>
         public static PowerDensityUnit ParseUnit(string str)
         {
-            return ParseUnit(str, (IFormatProvider)null);
+            return ParseUnitInternal(str, null);
+        }
+
+        public static bool TryParseUnit(string str, out PowerDensityUnit unit)
+        {
+            return TryParseUnitInternal(str, null, out unit);
+        }
+
+        /// <summary>
+        ///     Parse a string with one or two quantities of the format "&lt;quantity&gt; &lt;unit&gt;".
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <example>
+        ///     Length.Parse("5.5 m", new CultureInfo("en-US"));
+        /// </example>
+        /// <exception cref="ArgumentNullException">The value of 'str' cannot be null. </exception>
+        /// <exception cref="ArgumentException">
+        ///     Expected string to have one or two pairs of quantity and unit in the format
+        ///     "&lt;quantity&gt; &lt;unit&gt;". Eg. "5.5 m" or "1ft 2in"
+        /// </exception>
+        /// <exception cref="AmbiguousUnitParseException">
+        ///     More than one unit is represented by the specified unit abbreviation.
+        ///     Example: Volume.Parse("1 cup") will throw, because it can refer to any of
+        ///     <see cref="VolumeUnit.MetricCup" />, <see cref="VolumeUnit.UsLegalCup" /> and <see cref="VolumeUnit.UsCustomaryCup" />.
+        /// </exception>
+        /// <exception cref="UnitsNetException">
+        ///     If anything else goes wrong, typically due to a bug or unhandled case.
+        ///     We wrap exceptions in <see cref="UnitsNetException" /> to allow you to distinguish
+        ///     Units.NET exceptions from other exceptions.
+        /// </exception>
+        private static PowerDensity ParseInternal(string str, [CanBeNull] IFormatProvider provider)
+        {
+            if (str == null) throw new ArgumentNullException(nameof(str));
+
+            provider = provider ?? GlobalConfiguration.DefaultCulture;
+
+            return QuantityParser.Default.Parse<PowerDensity, PowerDensityUnit>(str, provider, ParseUnitInternal, From,
+                (x, y) => From(x.WattsPerCubicMeter + y.WattsPerCubicMeter, BaseUnit));
+        }
+
+        /// <summary>
+        ///     Try to parse a string with one or two quantities of the format "&lt;quantity&gt; &lt;unit&gt;".
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <param name="result">Resulting unit quantity if successful.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        /// <example>
+        ///     Length.Parse("5.5 m", new CultureInfo("en-US"));
+        /// </example>
+        private static bool TryParseInternal([CanBeNull] string str, [CanBeNull] IFormatProvider provider, out PowerDensity result)
+        {
+            result = default(PowerDensity);
+
+            if(string.IsNullOrWhiteSpace(str))
+                return false;
+
+            provider = provider ?? GlobalConfiguration.DefaultCulture;
+
+            return QuantityParser.Default.TryParse<PowerDensity, PowerDensityUnit>(str, provider, TryParseUnitInternal, From,
+                (x, y) => From(x.WattsPerCubicMeter + y.WattsPerCubicMeter, BaseUnit), out result);
+        }
+
+        /// <summary>
+        ///     Parse a unit string.
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <example>
+        ///     Length.ParseUnit("m", new CultureInfo("en-US"));
+        /// </example>
+        /// <exception cref="ArgumentNullException">The value of 'str' cannot be null. </exception>
+        /// <exception cref="UnitsNetException">Error parsing string.</exception>
+        private static PowerDensityUnit ParseUnitInternal(string str, IFormatProvider provider = null)
+        {
+            if (str == null) throw new ArgumentNullException(nameof(str));
+
+            var unit = UnitParser.Default.Parse<PowerDensityUnit>(str.Trim(), provider);
+
+            if (unit == PowerDensityUnit.Undefined)
+            {
+                var newEx = new UnitsNetException("Error parsing string. The unit is not a recognized PowerDensityUnit.");
+                newEx.Data["input"] = str;
+                newEx.Data["provider"] = provider?.ToString() ?? "(null)";
+                throw newEx;
+            }
+
+            return unit;
+        }
+
+        /// <summary>
+        ///     Parse a unit string.
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <param name="unit">The parsed unit if successful.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        /// <example>
+        ///     Length.ParseUnit("m", new CultureInfo("en-US"));
+        /// </example>
+        private static bool TryParseUnitInternal(string str, IFormatProvider provider, out PowerDensityUnit unit)
+        {
+            unit = PowerDensityUnit.Undefined;
+
+            if(string.IsNullOrWhiteSpace(str))
+                return false;
+
+            if(!UnitParser.Default.TryParse<PowerDensityUnit>(str.Trim(), provider, out unit))
+                return false;
+
+            if(unit == PowerDensityUnit.Undefined)
+                return false;
+
+            return true;
         }
 
         #endregion

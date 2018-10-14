@@ -20,7 +20,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -75,6 +74,27 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new $quantityName(($baseType)0.0, $unitEnumName.Undefined));
+        }
+
+"@; if ($quantity.BaseType -eq "double") {@"
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new $quantityName(double.PositiveInfinity, $unitEnumName.$($baseUnit.SingularName)));
+            Assert.Throws<ArgumentException>(() => new $quantityName(double.NegativeInfinity, $unitEnumName.$($baseUnit.SingularName)));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new $quantityName(double.NaN, $unitEnumName.$($baseUnit.SingularName)));
+        }
+"@; }@"
+
+        [Fact]
         public void $($baseUnit.SingularName)To$($quantityName)Units()
         {
             $quantityName $baseUnitVariableName = $quantityName.From$baseUnitPluralName(1);
@@ -90,6 +110,21 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, $quantityName.From(1, $unitEnumName.$($unit.SingularName)).$($unit.PluralName), $($unit.PluralName)Tolerance);
 "@; }@"
         }
+
+"@; if ($quantity.BaseType -eq "double") {@"
+        [Fact]
+        public void From$($baseUnit.PluralName)_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => $quantityName.From$($baseUnit.PluralName)(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => $quantityName.From$($baseUnit.PluralName)(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void From$($baseUnit.PluralName)_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => $quantityName.From$($baseUnit.PluralName)(double.NaN));
+        }
+"@; }@"
 
         [Fact]
         public void As()
@@ -226,6 +261,18 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain($unitEnumName.Undefined, $quantityName.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof($unitEnumName)).Cast<$unitEnumName>();
+            foreach(var unit in units)
+            {
+                if(unit == $unitEnumName.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }
 "@;

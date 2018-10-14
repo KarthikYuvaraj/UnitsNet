@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -74,6 +73,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new SpecificEntropy((double)0.0, SpecificEntropyUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new SpecificEntropy(double.PositiveInfinity, SpecificEntropyUnit.JoulePerKilogramKelvin));
+            Assert.Throws<ArgumentException>(() => new SpecificEntropy(double.NegativeInfinity, SpecificEntropyUnit.JoulePerKilogramKelvin));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new SpecificEntropy(double.NaN, SpecificEntropyUnit.JoulePerKilogramKelvin));
+        }
+
+        [Fact]
         public void JoulePerKilogramKelvinToSpecificEntropyUnits()
         {
             SpecificEntropy jouleperkilogramkelvin = SpecificEntropy.FromJoulesPerKilogramKelvin(1);
@@ -98,6 +116,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, SpecificEntropy.From(1, SpecificEntropyUnit.KilojoulePerKilogramKelvin).KilojoulesPerKilogramKelvin, KilojoulesPerKilogramKelvinTolerance);
             AssertEx.EqualTolerance(1, SpecificEntropy.From(1, SpecificEntropyUnit.MegajoulePerKilogramDegreeCelsius).MegajoulesPerKilogramDegreeCelsius, MegajoulesPerKilogramDegreeCelsiusTolerance);
             AssertEx.EqualTolerance(1, SpecificEntropy.From(1, SpecificEntropyUnit.MegajoulePerKilogramKelvin).MegajoulesPerKilogramKelvin, MegajoulesPerKilogramKelvinTolerance);
+        }
+
+        [Fact]
+        public void FromJoulesPerKilogramKelvin_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => SpecificEntropy.FromJoulesPerKilogramKelvin(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => SpecificEntropy.FromJoulesPerKilogramKelvin(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromJoulesPerKilogramKelvin_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => SpecificEntropy.FromJoulesPerKilogramKelvin(double.NaN));
         }
 
         [Fact]
@@ -247,5 +278,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(SpecificEntropyUnit.Undefined, SpecificEntropy.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(SpecificEntropyUnit)).Cast<SpecificEntropyUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == SpecificEntropyUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

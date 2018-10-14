@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -64,6 +63,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ApparentEnergy((double)0.0, ApparentEnergyUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ApparentEnergy(double.PositiveInfinity, ApparentEnergyUnit.VoltampereHour));
+            Assert.Throws<ArgumentException>(() => new ApparentEnergy(double.NegativeInfinity, ApparentEnergyUnit.VoltampereHour));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ApparentEnergy(double.NaN, ApparentEnergyUnit.VoltampereHour));
+        }
+
+        [Fact]
         public void VoltampereHourToApparentEnergyUnits()
         {
             ApparentEnergy voltamperehour = ApparentEnergy.FromVoltampereHours(1);
@@ -78,6 +96,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, ApparentEnergy.From(1, ApparentEnergyUnit.KilovoltampereHour).KilovoltampereHours, KilovoltampereHoursTolerance);
             AssertEx.EqualTolerance(1, ApparentEnergy.From(1, ApparentEnergyUnit.MegavoltampereHour).MegavoltampereHours, MegavoltampereHoursTolerance);
             AssertEx.EqualTolerance(1, ApparentEnergy.From(1, ApparentEnergyUnit.VoltampereHour).VoltampereHours, VoltampereHoursTolerance);
+        }
+
+        [Fact]
+        public void FromVoltampereHours_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ApparentEnergy.FromVoltampereHours(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => ApparentEnergy.FromVoltampereHours(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromVoltampereHours_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ApparentEnergy.FromVoltampereHours(double.NaN));
         }
 
         [Fact]
@@ -197,5 +228,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ApparentEnergyUnit.Undefined, ApparentEnergy.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ApparentEnergyUnit)).Cast<ApparentEnergyUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ApparentEnergyUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

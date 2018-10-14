@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -66,6 +65,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricResistivity((double)0.0, ElectricResistivityUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricResistivity(double.PositiveInfinity, ElectricResistivityUnit.OhmMeter));
+            Assert.Throws<ArgumentException>(() => new ElectricResistivity(double.NegativeInfinity, ElectricResistivityUnit.OhmMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricResistivity(double.NaN, ElectricResistivityUnit.OhmMeter));
+        }
+
+        [Fact]
         public void OhmMeterToElectricResistivityUnits()
         {
             ElectricResistivity ohmmeter = ElectricResistivity.FromOhmMeters(1);
@@ -82,6 +100,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, ElectricResistivity.From(1, ElectricResistivityUnit.MilliohmMeter).MilliohmMeters, MilliohmMetersTolerance);
             AssertEx.EqualTolerance(1, ElectricResistivity.From(1, ElectricResistivityUnit.NanoohmMeter).NanoohmMeters, NanoohmMetersTolerance);
             AssertEx.EqualTolerance(1, ElectricResistivity.From(1, ElectricResistivityUnit.OhmMeter).OhmMeters, OhmMetersTolerance);
+        }
+
+        [Fact]
+        public void FromOhmMeters_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricResistivity.FromOhmMeters(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => ElectricResistivity.FromOhmMeters(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromOhmMeters_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricResistivity.FromOhmMeters(double.NaN));
         }
 
         [Fact]
@@ -207,5 +238,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ElectricResistivityUnit.Undefined, ElectricResistivity.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ElectricResistivityUnit)).Cast<ElectricResistivityUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ElectricResistivityUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

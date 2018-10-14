@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -74,6 +73,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new TemperatureDelta((double)0.0, TemperatureDeltaUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new TemperatureDelta(double.PositiveInfinity, TemperatureDeltaUnit.Kelvin));
+            Assert.Throws<ArgumentException>(() => new TemperatureDelta(double.NegativeInfinity, TemperatureDeltaUnit.Kelvin));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new TemperatureDelta(double.NaN, TemperatureDeltaUnit.Kelvin));
+        }
+
+        [Fact]
         public void KelvinToTemperatureDeltaUnits()
         {
             TemperatureDelta kelvin = TemperatureDelta.FromKelvins(1);
@@ -98,6 +116,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, TemperatureDelta.From(1, TemperatureDeltaUnit.DegreeReaumur).DegreesReaumur, DegreesReaumurTolerance);
             AssertEx.EqualTolerance(1, TemperatureDelta.From(1, TemperatureDeltaUnit.DegreeRoemer).DegreesRoemer, DegreesRoemerTolerance);
             AssertEx.EqualTolerance(1, TemperatureDelta.From(1, TemperatureDeltaUnit.Kelvin).Kelvins, KelvinsTolerance);
+        }
+
+        [Fact]
+        public void FromKelvins_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => TemperatureDelta.FromKelvins(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => TemperatureDelta.FromKelvins(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromKelvins_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => TemperatureDelta.FromKelvins(double.NaN));
         }
 
         [Fact]
@@ -247,5 +278,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(TemperatureDeltaUnit.Undefined, TemperatureDelta.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(TemperatureDeltaUnit)).Cast<TemperatureDeltaUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == TemperatureDeltaUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

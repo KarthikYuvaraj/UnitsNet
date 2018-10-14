@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -64,6 +63,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Irradiation((double)0.0, IrradiationUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Irradiation(double.PositiveInfinity, IrradiationUnit.JoulePerSquareMeter));
+            Assert.Throws<ArgumentException>(() => new Irradiation(double.NegativeInfinity, IrradiationUnit.JoulePerSquareMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Irradiation(double.NaN, IrradiationUnit.JoulePerSquareMeter));
+        }
+
+        [Fact]
         public void JoulePerSquareMeterToIrradiationUnits()
         {
             Irradiation joulepersquaremeter = Irradiation.FromJoulesPerSquareMeter(1);
@@ -78,6 +96,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, Irradiation.From(1, IrradiationUnit.JoulePerSquareMeter).JoulesPerSquareMeter, JoulesPerSquareMeterTolerance);
             AssertEx.EqualTolerance(1, Irradiation.From(1, IrradiationUnit.KilowattHourPerSquareMeter).KilowattHoursPerSquareMeter, KilowattHoursPerSquareMeterTolerance);
             AssertEx.EqualTolerance(1, Irradiation.From(1, IrradiationUnit.WattHourPerSquareMeter).WattHoursPerSquareMeter, WattHoursPerSquareMeterTolerance);
+        }
+
+        [Fact]
+        public void FromJoulesPerSquareMeter_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Irradiation.FromJoulesPerSquareMeter(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Irradiation.FromJoulesPerSquareMeter(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromJoulesPerSquareMeter_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Irradiation.FromJoulesPerSquareMeter(double.NaN));
         }
 
         [Fact]
@@ -197,5 +228,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(IrradiationUnit.Undefined, Irradiation.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(IrradiationUnit)).Cast<IrradiationUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == IrradiationUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

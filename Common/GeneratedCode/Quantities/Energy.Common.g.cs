@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -37,11 +36,9 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Linq;
 using JetBrains.Annotations;
+using UnitsNet.InternalHelpers;
 using UnitsNet.Units;
 
 // ReSharper disable once CheckNamespace
@@ -85,9 +82,10 @@ namespace UnitsNet
         /// <summary>
         ///     Creates the quantity with the given numeric value and unit.
         /// </summary>
-        /// <param name="numericValue">Numeric value.</param>
+        /// <param name="numericValue">The numeric value  to contruct this quantity with.</param>
         /// <param name="unit">The unit representation to contruct this quantity with.</param>
         /// <remarks>Value parameter cannot be named 'value' due to constraint when targeting Windows Runtime Component.</remarks>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         private
 #else
@@ -95,7 +93,10 @@ namespace UnitsNet
 #endif
         Energy(double numericValue, EnergyUnit unit)
         {
-            _value = numericValue;
+            if(unit == EnergyUnit.Undefined)
+              throw new ArgumentException("The quantity can not be created with an undefined unit.", nameof(unit));
+
+            _value = Guard.EnsureValidNumber(numericValue, nameof(numericValue));
             _unit = unit;
         }
 
@@ -246,6 +247,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from BritishThermalUnits.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromBritishThermalUnits(double britishthermalunits)
@@ -260,6 +262,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from Calories.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromCalories(double calories)
@@ -274,6 +277,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from DecathermsEc.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromDecathermsEc(double decathermsec)
@@ -288,6 +292,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from DecathermsImperial.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromDecathermsImperial(double decathermsimperial)
@@ -302,6 +307,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from DecathermsUs.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromDecathermsUs(double decathermsus)
@@ -316,6 +322,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from ElectronVolts.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromElectronVolts(double electronvolts)
@@ -330,6 +337,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from Ergs.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromErgs(double ergs)
@@ -344,6 +352,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from FootPounds.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromFootPounds(double footpounds)
@@ -358,6 +367,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from GigabritishThermalUnits.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromGigabritishThermalUnits(double gigabritishthermalunits)
@@ -372,6 +382,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from GigawattHours.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromGigawattHours(double gigawatthours)
@@ -386,6 +397,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from Joules.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromJoules(double joules)
@@ -400,6 +412,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from KilobritishThermalUnits.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromKilobritishThermalUnits(double kilobritishthermalunits)
@@ -414,6 +427,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from Kilocalories.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromKilocalories(double kilocalories)
@@ -428,6 +442,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from Kilojoules.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromKilojoules(double kilojoules)
@@ -442,6 +457,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from KilowattHours.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromKilowattHours(double kilowatthours)
@@ -456,6 +472,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from MegabritishThermalUnits.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromMegabritishThermalUnits(double megabritishthermalunits)
@@ -470,6 +487,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from Megajoules.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromMegajoules(double megajoules)
@@ -484,6 +502,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from MegawattHours.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromMegawattHours(double megawatthours)
@@ -498,6 +517,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from ThermsEc.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromThermsEc(double thermsec)
@@ -512,6 +532,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from ThermsImperial.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromThermsImperial(double thermsimperial)
@@ -526,6 +547,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from ThermsUs.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromThermsUs(double thermsus)
@@ -540,6 +562,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Energy from WattHours.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Energy FromWattHours(double watthours)
@@ -790,7 +813,7 @@ namespace UnitsNet
         /// </exception>
         public static Energy Parse(string str)
         {
-            return Parse(str, null);
+            return ParseInternal(str, null);
         }
 
         /// <summary>
@@ -803,7 +826,7 @@ namespace UnitsNet
         /// </example>
         public static bool TryParse([CanBeNull] string str, out Energy result)
         {
-            return TryParse(str, null, out result);
+            return TryParseInternal(str, null, out result);
         }
 
         /// <summary>
@@ -817,7 +840,121 @@ namespace UnitsNet
         /// <exception cref="UnitsNetException">Error parsing string.</exception>
         public static EnergyUnit ParseUnit(string str)
         {
-            return ParseUnit(str, (IFormatProvider)null);
+            return ParseUnitInternal(str, null);
+        }
+
+        public static bool TryParseUnit(string str, out EnergyUnit unit)
+        {
+            return TryParseUnitInternal(str, null, out unit);
+        }
+
+        /// <summary>
+        ///     Parse a string with one or two quantities of the format "&lt;quantity&gt; &lt;unit&gt;".
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <example>
+        ///     Length.Parse("5.5 m", new CultureInfo("en-US"));
+        /// </example>
+        /// <exception cref="ArgumentNullException">The value of 'str' cannot be null. </exception>
+        /// <exception cref="ArgumentException">
+        ///     Expected string to have one or two pairs of quantity and unit in the format
+        ///     "&lt;quantity&gt; &lt;unit&gt;". Eg. "5.5 m" or "1ft 2in"
+        /// </exception>
+        /// <exception cref="AmbiguousUnitParseException">
+        ///     More than one unit is represented by the specified unit abbreviation.
+        ///     Example: Volume.Parse("1 cup") will throw, because it can refer to any of
+        ///     <see cref="VolumeUnit.MetricCup" />, <see cref="VolumeUnit.UsLegalCup" /> and <see cref="VolumeUnit.UsCustomaryCup" />.
+        /// </exception>
+        /// <exception cref="UnitsNetException">
+        ///     If anything else goes wrong, typically due to a bug or unhandled case.
+        ///     We wrap exceptions in <see cref="UnitsNetException" /> to allow you to distinguish
+        ///     Units.NET exceptions from other exceptions.
+        /// </exception>
+        private static Energy ParseInternal(string str, [CanBeNull] IFormatProvider provider)
+        {
+            if (str == null) throw new ArgumentNullException(nameof(str));
+
+            provider = provider ?? GlobalConfiguration.DefaultCulture;
+
+            return QuantityParser.Default.Parse<Energy, EnergyUnit>(str, provider, ParseUnitInternal, From,
+                (x, y) => From(x.Joules + y.Joules, BaseUnit));
+        }
+
+        /// <summary>
+        ///     Try to parse a string with one or two quantities of the format "&lt;quantity&gt; &lt;unit&gt;".
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <param name="result">Resulting unit quantity if successful.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        /// <example>
+        ///     Length.Parse("5.5 m", new CultureInfo("en-US"));
+        /// </example>
+        private static bool TryParseInternal([CanBeNull] string str, [CanBeNull] IFormatProvider provider, out Energy result)
+        {
+            result = default(Energy);
+
+            if(string.IsNullOrWhiteSpace(str))
+                return false;
+
+            provider = provider ?? GlobalConfiguration.DefaultCulture;
+
+            return QuantityParser.Default.TryParse<Energy, EnergyUnit>(str, provider, TryParseUnitInternal, From,
+                (x, y) => From(x.Joules + y.Joules, BaseUnit), out result);
+        }
+
+        /// <summary>
+        ///     Parse a unit string.
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <example>
+        ///     Length.ParseUnit("m", new CultureInfo("en-US"));
+        /// </example>
+        /// <exception cref="ArgumentNullException">The value of 'str' cannot be null. </exception>
+        /// <exception cref="UnitsNetException">Error parsing string.</exception>
+        private static EnergyUnit ParseUnitInternal(string str, IFormatProvider provider = null)
+        {
+            if (str == null) throw new ArgumentNullException(nameof(str));
+
+            var unit = UnitParser.Default.Parse<EnergyUnit>(str.Trim(), provider);
+
+            if (unit == EnergyUnit.Undefined)
+            {
+                var newEx = new UnitsNetException("Error parsing string. The unit is not a recognized EnergyUnit.");
+                newEx.Data["input"] = str;
+                newEx.Data["provider"] = provider?.ToString() ?? "(null)";
+                throw newEx;
+            }
+
+            return unit;
+        }
+
+        /// <summary>
+        ///     Parse a unit string.
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <param name="unit">The parsed unit if successful.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        /// <example>
+        ///     Length.ParseUnit("m", new CultureInfo("en-US"));
+        /// </example>
+        private static bool TryParseUnitInternal(string str, IFormatProvider provider, out EnergyUnit unit)
+        {
+            unit = EnergyUnit.Undefined;
+
+            if(string.IsNullOrWhiteSpace(str))
+                return false;
+
+            if(!UnitParser.Default.TryParse<EnergyUnit>(str.Trim(), provider, out unit))
+                return false;
+
+            if(unit == EnergyUnit.Undefined)
+                return false;
+
+            return true;
         }
 
         #endregion

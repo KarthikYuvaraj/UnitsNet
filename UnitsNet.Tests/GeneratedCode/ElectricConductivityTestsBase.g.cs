@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -60,6 +59,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricConductivity((double)0.0, ElectricConductivityUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricConductivity(double.PositiveInfinity, ElectricConductivityUnit.SiemensPerMeter));
+            Assert.Throws<ArgumentException>(() => new ElectricConductivity(double.NegativeInfinity, ElectricConductivityUnit.SiemensPerMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricConductivity(double.NaN, ElectricConductivityUnit.SiemensPerMeter));
+        }
+
+        [Fact]
         public void SiemensPerMeterToElectricConductivityUnits()
         {
             ElectricConductivity siemenspermeter = ElectricConductivity.FromSiemensPerMeter(1);
@@ -70,6 +88,19 @@ namespace UnitsNet.Tests
         public void FromValueAndUnit()
         {
             AssertEx.EqualTolerance(1, ElectricConductivity.From(1, ElectricConductivityUnit.SiemensPerMeter).SiemensPerMeter, SiemensPerMeterTolerance);
+        }
+
+        [Fact]
+        public void FromSiemensPerMeter_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricConductivity.FromSiemensPerMeter(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => ElectricConductivity.FromSiemensPerMeter(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromSiemensPerMeter_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricConductivity.FromSiemensPerMeter(double.NaN));
         }
 
         [Fact]
@@ -177,5 +208,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ElectricConductivityUnit.Undefined, ElectricConductivity.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ElectricConductivityUnit)).Cast<ElectricConductivityUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ElectricConductivityUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -134,6 +133,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Density((double)0.0, DensityUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Density(double.PositiveInfinity, DensityUnit.KilogramPerCubicMeter));
+            Assert.Throws<ArgumentException>(() => new Density(double.NegativeInfinity, DensityUnit.KilogramPerCubicMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Density(double.NaN, DensityUnit.KilogramPerCubicMeter));
+        }
+
+        [Fact]
         public void KilogramPerCubicMeterToDensityUnits()
         {
             Density kilogrampercubicmeter = Density.FromKilogramsPerCubicMeter(1);
@@ -218,6 +236,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, Density.From(1, DensityUnit.TonnePerCubicCentimeter).TonnesPerCubicCentimeter, TonnesPerCubicCentimeterTolerance);
             AssertEx.EqualTolerance(1, Density.From(1, DensityUnit.TonnePerCubicMeter).TonnesPerCubicMeter, TonnesPerCubicMeterTolerance);
             AssertEx.EqualTolerance(1, Density.From(1, DensityUnit.TonnePerCubicMillimeter).TonnesPerCubicMillimeter, TonnesPerCubicMillimeterTolerance);
+        }
+
+        [Fact]
+        public void FromKilogramsPerCubicMeter_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Density.FromKilogramsPerCubicMeter(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Density.FromKilogramsPerCubicMeter(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromKilogramsPerCubicMeter_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Density.FromKilogramsPerCubicMeter(double.NaN));
         }
 
         [Fact]
@@ -547,5 +578,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(DensityUnit.Undefined, Density.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(DensityUnit)).Cast<DensityUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == DensityUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

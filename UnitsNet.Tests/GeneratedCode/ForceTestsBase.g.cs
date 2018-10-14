@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -78,6 +77,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Force((double)0.0, ForceUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Force(double.PositiveInfinity, ForceUnit.Newton));
+            Assert.Throws<ArgumentException>(() => new Force(double.NegativeInfinity, ForceUnit.Newton));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Force(double.NaN, ForceUnit.Newton));
+        }
+
+        [Fact]
         public void NewtonToForceUnits()
         {
             Force newton = Force.FromNewtons(1);
@@ -106,6 +124,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, Force.From(1, ForceUnit.Poundal).Poundals, PoundalsTolerance);
             AssertEx.EqualTolerance(1, Force.From(1, ForceUnit.PoundForce).PoundsForce, PoundsForceTolerance);
             AssertEx.EqualTolerance(1, Force.From(1, ForceUnit.TonneForce).TonnesForce, TonnesForceTolerance);
+        }
+
+        [Fact]
+        public void FromNewtons_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Force.FromNewtons(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Force.FromNewtons(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromNewtons_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Force.FromNewtons(double.NaN));
         }
 
         [Fact]
@@ -267,5 +298,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ForceUnit.Undefined, Force.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ForceUnit)).Cast<ForceUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ForceUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

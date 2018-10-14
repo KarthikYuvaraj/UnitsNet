@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -70,6 +69,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Ratio((double)0.0, RatioUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Ratio(double.PositiveInfinity, RatioUnit.DecimalFraction));
+            Assert.Throws<ArgumentException>(() => new Ratio(double.NegativeInfinity, RatioUnit.DecimalFraction));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Ratio(double.NaN, RatioUnit.DecimalFraction));
+        }
+
+        [Fact]
         public void DecimalFractionToRatioUnits()
         {
             Ratio decimalfraction = Ratio.FromDecimalFractions(1);
@@ -90,6 +108,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, Ratio.From(1, RatioUnit.PartPerThousand).PartsPerThousand, PartsPerThousandTolerance);
             AssertEx.EqualTolerance(1, Ratio.From(1, RatioUnit.PartPerTrillion).PartsPerTrillion, PartsPerTrillionTolerance);
             AssertEx.EqualTolerance(1, Ratio.From(1, RatioUnit.Percent).Percent, PercentTolerance);
+        }
+
+        [Fact]
+        public void FromDecimalFractions_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Ratio.FromDecimalFractions(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Ratio.FromDecimalFractions(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromDecimalFractions_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Ratio.FromDecimalFractions(double.NaN));
         }
 
         [Fact]
@@ -227,5 +258,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(RatioUnit.Undefined, Ratio.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(RatioUnit)).Cast<RatioUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == RatioUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -78,6 +77,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new TemperatureChangeRate((double)0.0, TemperatureChangeRateUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new TemperatureChangeRate(double.PositiveInfinity, TemperatureChangeRateUnit.DegreeCelsiusPerSecond));
+            Assert.Throws<ArgumentException>(() => new TemperatureChangeRate(double.NegativeInfinity, TemperatureChangeRateUnit.DegreeCelsiusPerSecond));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new TemperatureChangeRate(double.NaN, TemperatureChangeRateUnit.DegreeCelsiusPerSecond));
+        }
+
+        [Fact]
         public void DegreeCelsiusPerSecondToTemperatureChangeRateUnits()
         {
             TemperatureChangeRate degreecelsiuspersecond = TemperatureChangeRate.FromDegreesCelsiusPerSecond(1);
@@ -106,6 +124,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, TemperatureChangeRate.From(1, TemperatureChangeRateUnit.MicrodegreeCelsiusPerSecond).MicrodegreesCelsiusPerSecond, MicrodegreesCelsiusPerSecondTolerance);
             AssertEx.EqualTolerance(1, TemperatureChangeRate.From(1, TemperatureChangeRateUnit.MillidegreeCelsiusPerSecond).MillidegreesCelsiusPerSecond, MillidegreesCelsiusPerSecondTolerance);
             AssertEx.EqualTolerance(1, TemperatureChangeRate.From(1, TemperatureChangeRateUnit.NanodegreeCelsiusPerSecond).NanodegreesCelsiusPerSecond, NanodegreesCelsiusPerSecondTolerance);
+        }
+
+        [Fact]
+        public void FromDegreesCelsiusPerSecond_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => TemperatureChangeRate.FromDegreesCelsiusPerSecond(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => TemperatureChangeRate.FromDegreesCelsiusPerSecond(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromDegreesCelsiusPerSecond_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => TemperatureChangeRate.FromDegreesCelsiusPerSecond(double.NaN));
         }
 
         [Fact]
@@ -267,5 +298,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(TemperatureChangeRateUnit.Undefined, TemperatureChangeRate.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(TemperatureChangeRateUnit)).Cast<TemperatureChangeRateUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == TemperatureChangeRateUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

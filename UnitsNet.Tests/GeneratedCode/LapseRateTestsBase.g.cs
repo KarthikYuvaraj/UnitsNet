@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -60,6 +59,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new LapseRate((double)0.0, LapseRateUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new LapseRate(double.PositiveInfinity, LapseRateUnit.DegreeCelsiusPerKilometer));
+            Assert.Throws<ArgumentException>(() => new LapseRate(double.NegativeInfinity, LapseRateUnit.DegreeCelsiusPerKilometer));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new LapseRate(double.NaN, LapseRateUnit.DegreeCelsiusPerKilometer));
+        }
+
+        [Fact]
         public void DegreeCelsiusPerKilometerToLapseRateUnits()
         {
             LapseRate degreecelsiusperkilometer = LapseRate.FromDegreesCelciusPerKilometer(1);
@@ -70,6 +88,19 @@ namespace UnitsNet.Tests
         public void FromValueAndUnit()
         {
             AssertEx.EqualTolerance(1, LapseRate.From(1, LapseRateUnit.DegreeCelsiusPerKilometer).DegreesCelciusPerKilometer, DegreesCelciusPerKilometerTolerance);
+        }
+
+        [Fact]
+        public void FromDegreesCelciusPerKilometer_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => LapseRate.FromDegreesCelciusPerKilometer(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => LapseRate.FromDegreesCelciusPerKilometer(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromDegreesCelciusPerKilometer_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => LapseRate.FromDegreesCelciusPerKilometer(double.NaN));
         }
 
         [Fact]
@@ -177,5 +208,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(LapseRateUnit.Undefined, LapseRate.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(LapseRateUnit)).Cast<LapseRateUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == LapseRateUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

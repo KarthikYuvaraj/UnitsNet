@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -66,6 +65,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ReactivePower((double)0.0, ReactivePowerUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ReactivePower(double.PositiveInfinity, ReactivePowerUnit.VoltampereReactive));
+            Assert.Throws<ArgumentException>(() => new ReactivePower(double.NegativeInfinity, ReactivePowerUnit.VoltampereReactive));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ReactivePower(double.NaN, ReactivePowerUnit.VoltampereReactive));
+        }
+
+        [Fact]
         public void VoltampereReactiveToReactivePowerUnits()
         {
             ReactivePower voltamperereactive = ReactivePower.FromVoltamperesReactive(1);
@@ -82,6 +100,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, ReactivePower.From(1, ReactivePowerUnit.KilovoltampereReactive).KilovoltamperesReactive, KilovoltamperesReactiveTolerance);
             AssertEx.EqualTolerance(1, ReactivePower.From(1, ReactivePowerUnit.MegavoltampereReactive).MegavoltamperesReactive, MegavoltamperesReactiveTolerance);
             AssertEx.EqualTolerance(1, ReactivePower.From(1, ReactivePowerUnit.VoltampereReactive).VoltamperesReactive, VoltamperesReactiveTolerance);
+        }
+
+        [Fact]
+        public void FromVoltamperesReactive_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ReactivePower.FromVoltamperesReactive(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => ReactivePower.FromVoltamperesReactive(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromVoltamperesReactive_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ReactivePower.FromVoltamperesReactive(double.NaN));
         }
 
         [Fact]
@@ -207,5 +238,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ReactivePowerUnit.Undefined, ReactivePower.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ReactivePowerUnit)).Cast<ReactivePowerUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ReactivePowerUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

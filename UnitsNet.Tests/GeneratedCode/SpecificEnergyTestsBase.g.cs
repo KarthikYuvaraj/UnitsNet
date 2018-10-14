@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -74,6 +73,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new SpecificEnergy((double)0.0, SpecificEnergyUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new SpecificEnergy(double.PositiveInfinity, SpecificEnergyUnit.JoulePerKilogram));
+            Assert.Throws<ArgumentException>(() => new SpecificEnergy(double.NegativeInfinity, SpecificEnergyUnit.JoulePerKilogram));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new SpecificEnergy(double.NaN, SpecificEnergyUnit.JoulePerKilogram));
+        }
+
+        [Fact]
         public void JoulePerKilogramToSpecificEnergyUnits()
         {
             SpecificEnergy jouleperkilogram = SpecificEnergy.FromJoulesPerKilogram(1);
@@ -98,6 +116,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, SpecificEnergy.From(1, SpecificEnergyUnit.MegajoulePerKilogram).MegajoulesPerKilogram, MegajoulesPerKilogramTolerance);
             AssertEx.EqualTolerance(1, SpecificEnergy.From(1, SpecificEnergyUnit.MegawattHourPerKilogram).MegawattHoursPerKilogram, MegawattHoursPerKilogramTolerance);
             AssertEx.EqualTolerance(1, SpecificEnergy.From(1, SpecificEnergyUnit.WattHourPerKilogram).WattHoursPerKilogram, WattHoursPerKilogramTolerance);
+        }
+
+        [Fact]
+        public void FromJoulesPerKilogram_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => SpecificEnergy.FromJoulesPerKilogram(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => SpecificEnergy.FromJoulesPerKilogram(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromJoulesPerKilogram_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => SpecificEnergy.FromJoulesPerKilogram(double.NaN));
         }
 
         [Fact]
@@ -247,5 +278,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(SpecificEnergyUnit.Undefined, SpecificEnergy.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(SpecificEnergyUnit)).Cast<SpecificEnergyUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == SpecificEnergyUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

@@ -6,7 +6,6 @@
     $baseUnit = $units | where { $_.SingularName -eq $quantity.BaseUnit }
     $baseUnitSingularName = $baseUnit.SingularName
     $baseUnitPluralName = $baseUnit.PluralName
-    $baseUnitPluralNameLower = $baseUnitPluralName.ToLowerInvariant()
     $unitEnumName = "$quantityName" + "Unit"
 
     # Base dimensions
@@ -18,25 +17,6 @@
     $baseDimensionTemperature = if($baseDimensions.Θ){$baseDimensions.Θ} else{0};
     $baseDimensionAmountOfSubstance = if($baseDimensions.N){$baseDimensions.N} else{0};
     $baseDimensionLuminousIntensity = if($baseDimensions.J){$baseDimensions.J} else{0};
-
-    $convertToBaseType = switch ($baseType) {
-      "long" { "Convert.ToInt64"; break }
-      "double" { "Convert.ToDouble"; break }
-      "decimal" {  "Convert.ToDecimal"; break }
-      default { throw "Base type not supported: $baseType" }
-    }
-
-    $quantityValueType = switch ($baseType) {
-      "long" { "QuantityValue"; break }
-      "double" { "QuantityValue"; break }
-      "decimal" {  "QuantityValue"; break }
-      default { throw "Base type not supported: $baseType" }
-    }
-
-    $obsoleteEqualityIfDouble = ''
-    if ($quantity.BaseType -eq "double") {
-      $obsoleteEqualityIfDouble = '[Obsolete("It is not safe to compare equality due to using System.Double as the internal representation. It is very easy to get slightly different values due to floating point operations. Instead use Equals($quantityName, double, ComparisonType) to provide the max allowed absolute or relative error.")]' + "`r`n        "
-    }
 
 @"
 //------------------------------------------------------------------------------
@@ -50,7 +30,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -78,11 +57,9 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Linq;
 using JetBrains.Annotations;
+using UnitsNet.InternalHelpers;
 using UnitsNet.Units;
 
 // ReSharper disable once CheckNamespace
@@ -140,9 +117,10 @@ if ($obsoleteAttribute)
         /// <summary>
         ///     Creates the quantity with the given numeric value and unit.
         /// </summary>
-        /// <param name="numericValue">Numeric value.</param>
+        /// <param name="numericValue">The numeric value  to contruct this quantity with.</param>
         /// <param name="unit">The unit representation to contruct this quantity with.</param>
         /// <remarks>Value parameter cannot be named 'value' due to constraint when targeting Windows Runtime Component.</remarks>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         private
 #else
@@ -150,7 +128,14 @@ if ($obsoleteAttribute)
 #endif
         $quantityName($baseType numericValue, $unitEnumName unit)
         {
+            if(unit == $unitEnumName.Undefined)
+              throw new ArgumentException("The quantity can not be created with an undefined unit.", nameof(unit));
+
+"@; if ($quantity.BaseType -eq "double") {@"
+            _value = Guard.EnsureValidNumber(numericValue, nameof(numericValue));
+"@; } else {@"
             _value = numericValue;
+"@; }@"
             _unit = unit;
         }
 
@@ -214,11 +199,12 @@ if ($obsoleteAttribute)
         /// <summary>
         ///     Get $quantityName from $($unit.PluralName).
         /// </summary>$($obsoleteAttribute)
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static $quantityName From$($unit.PluralName)(double $valueParamName)
 #else
-        public static $quantityName From$($unit.PluralName)($quantityValueType $valueParamName)
+        public static $quantityName From$($unit.PluralName)(QuantityValue $valueParamName)
 #endif
         {
             $baseType value = ($baseType) $valueParamName;
@@ -238,7 +224,7 @@ if ($obsoleteAttribute)
         [return: System.Runtime.InteropServices.WindowsRuntime.ReturnValueName("returnValue")]
         public static $quantityName From(double value, $unitEnumName fromUnit)
 #else
-        public static $quantityName From($quantityValueType value, $unitEnumName fromUnit)
+        public static $quantityName From(QuantityValue value, $unitEnumName fromUnit)
 #endif
         {
             return new $quantityName(($baseType)value, fromUnit);
@@ -429,7 +415,7 @@ if ($obsoleteAttribute)
         /// </exception>
         public static $quantityName Parse(string str)
         {
-            return Parse(str, null);
+            return ParseInternal(str, null);
         }
 
         /// <summary>
@@ -442,7 +428,7 @@ if ($obsoleteAttribute)
         /// </example>
         public static bool TryParse([CanBeNull] string str, out $quantityName result)
         {
-            return TryParse(str, null, out result);
+            return TryParseInternal(str, null, out result);
         }
 
         /// <summary>
@@ -456,7 +442,121 @@ if ($obsoleteAttribute)
         /// <exception cref="UnitsNetException">Error parsing string.</exception>
         public static $unitEnumName ParseUnit(string str)
         {
-            return ParseUnit(str, (IFormatProvider)null);
+            return ParseUnitInternal(str, null);
+        }
+
+        public static bool TryParseUnit(string str, out $unitEnumName unit)
+        {
+            return TryParseUnitInternal(str, null, out unit);
+        }
+
+        /// <summary>
+        ///     Parse a string with one or two quantities of the format "&lt;quantity&gt; &lt;unit&gt;".
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <example>
+        ///     Length.Parse("5.5 m", new CultureInfo("en-US"));
+        /// </example>
+        /// <exception cref="ArgumentNullException">The value of 'str' cannot be null. </exception>
+        /// <exception cref="ArgumentException">
+        ///     Expected string to have one or two pairs of quantity and unit in the format
+        ///     "&lt;quantity&gt; &lt;unit&gt;". Eg. "5.5 m" or "1ft 2in"
+        /// </exception>
+        /// <exception cref="AmbiguousUnitParseException">
+        ///     More than one unit is represented by the specified unit abbreviation.
+        ///     Example: Volume.Parse("1 cup") will throw, because it can refer to any of
+        ///     <see cref="VolumeUnit.MetricCup" />, <see cref="VolumeUnit.UsLegalCup" /> and <see cref="VolumeUnit.UsCustomaryCup" />.
+        /// </exception>
+        /// <exception cref="UnitsNetException">
+        ///     If anything else goes wrong, typically due to a bug or unhandled case.
+        ///     We wrap exceptions in <see cref="UnitsNetException" /> to allow you to distinguish
+        ///     Units.NET exceptions from other exceptions.
+        /// </exception>
+        private static $quantityName ParseInternal(string str, [CanBeNull] IFormatProvider provider)
+        {
+            if (str == null) throw new ArgumentNullException(nameof(str));
+
+            provider = provider ?? GlobalConfiguration.DefaultCulture;
+
+            return QuantityParser.Default.Parse<$quantityName, $unitEnumName>(str, provider, ParseUnitInternal, From,
+                (x, y) => From(x.$baseUnitPluralName + y.$baseUnitPluralName, BaseUnit));
+        }
+
+        /// <summary>
+        ///     Try to parse a string with one or two quantities of the format "&lt;quantity&gt; &lt;unit&gt;".
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <param name="result">Resulting unit quantity if successful.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        /// <example>
+        ///     Length.Parse("5.5 m", new CultureInfo("en-US"));
+        /// </example>
+        private static bool TryParseInternal([CanBeNull] string str, [CanBeNull] IFormatProvider provider, out $quantityName result)
+        {
+            result = default($quantityName);
+
+            if(string.IsNullOrWhiteSpace(str))
+                return false;
+
+            provider = provider ?? GlobalConfiguration.DefaultCulture;
+
+            return QuantityParser.Default.TryParse<$quantityName, $unitEnumName>(str, provider, TryParseUnitInternal, From,
+                (x, y) => From(x.$baseUnitPluralName + y.$baseUnitPluralName, BaseUnit), out result);
+        }
+
+        /// <summary>
+        ///     Parse a unit string.
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <example>
+        ///     Length.ParseUnit("m", new CultureInfo("en-US"));
+        /// </example>
+        /// <exception cref="ArgumentNullException">The value of 'str' cannot be null. </exception>
+        /// <exception cref="UnitsNetException">Error parsing string.</exception>
+        private static $unitEnumName ParseUnitInternal(string str, IFormatProvider provider = null)
+        {
+            if (str == null) throw new ArgumentNullException(nameof(str));
+
+            var unit = UnitParser.Default.Parse<$unitEnumName>(str.Trim(), provider);
+
+            if (unit == $unitEnumName.Undefined)
+            {
+                var newEx = new UnitsNetException("Error parsing string. The unit is not a recognized $unitEnumName.");
+                newEx.Data["input"] = str;
+                newEx.Data["provider"] = provider?.ToString() ?? "(null)";
+                throw newEx;
+            }
+
+            return unit;
+        }
+
+        /// <summary>
+        ///     Parse a unit string.
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <param name="unit">The parsed unit if successful.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        /// <example>
+        ///     Length.ParseUnit("m", new CultureInfo("en-US"));
+        /// </example>
+        private static bool TryParseUnitInternal(string str, IFormatProvider provider, out $unitEnumName unit)
+        {
+            unit = $unitEnumName.Undefined;
+
+            if(string.IsNullOrWhiteSpace(str))
+                return false;
+
+            if(!UnitParser.Default.TryParse<$unitEnumName>(str.Trim(), provider, out unit))
+                return false;
+
+            if(unit == $unitEnumName.Undefined)
+                return false;
+
+            return true;
         }
 
         #endregion

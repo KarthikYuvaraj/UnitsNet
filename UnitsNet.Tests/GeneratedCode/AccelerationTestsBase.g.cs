@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -84,6 +83,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Acceleration((double)0.0, AccelerationUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Acceleration(double.PositiveInfinity, AccelerationUnit.MeterPerSecondSquared));
+            Assert.Throws<ArgumentException>(() => new Acceleration(double.NegativeInfinity, AccelerationUnit.MeterPerSecondSquared));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Acceleration(double.NaN, AccelerationUnit.MeterPerSecondSquared));
+        }
+
+        [Fact]
         public void MeterPerSecondSquaredToAccelerationUnits()
         {
             Acceleration meterpersecondsquared = Acceleration.FromMetersPerSecondSquared(1);
@@ -118,6 +136,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, Acceleration.From(1, AccelerationUnit.MillimeterPerSecondSquared).MillimetersPerSecondSquared, MillimetersPerSecondSquaredTolerance);
             AssertEx.EqualTolerance(1, Acceleration.From(1, AccelerationUnit.NanometerPerSecondSquared).NanometersPerSecondSquared, NanometersPerSecondSquaredTolerance);
             AssertEx.EqualTolerance(1, Acceleration.From(1, AccelerationUnit.StandardGravity).StandardGravity, StandardGravityTolerance);
+        }
+
+        [Fact]
+        public void FromMetersPerSecondSquared_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Acceleration.FromMetersPerSecondSquared(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Acceleration.FromMetersPerSecondSquared(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromMetersPerSecondSquared_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Acceleration.FromMetersPerSecondSquared(double.NaN));
         }
 
         [Fact]
@@ -297,5 +328,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(AccelerationUnit.Undefined, Acceleration.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(AccelerationUnit)).Cast<AccelerationUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == AccelerationUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

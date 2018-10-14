@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -64,6 +63,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new MolarEnergy((double)0.0, MolarEnergyUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new MolarEnergy(double.PositiveInfinity, MolarEnergyUnit.JoulePerMole));
+            Assert.Throws<ArgumentException>(() => new MolarEnergy(double.NegativeInfinity, MolarEnergyUnit.JoulePerMole));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new MolarEnergy(double.NaN, MolarEnergyUnit.JoulePerMole));
+        }
+
+        [Fact]
         public void JoulePerMoleToMolarEnergyUnits()
         {
             MolarEnergy joulepermole = MolarEnergy.FromJoulesPerMole(1);
@@ -78,6 +96,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, MolarEnergy.From(1, MolarEnergyUnit.JoulePerMole).JoulesPerMole, JoulesPerMoleTolerance);
             AssertEx.EqualTolerance(1, MolarEnergy.From(1, MolarEnergyUnit.KilojoulePerMole).KilojoulesPerMole, KilojoulesPerMoleTolerance);
             AssertEx.EqualTolerance(1, MolarEnergy.From(1, MolarEnergyUnit.MegajoulePerMole).MegajoulesPerMole, MegajoulesPerMoleTolerance);
+        }
+
+        [Fact]
+        public void FromJoulesPerMole_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => MolarEnergy.FromJoulesPerMole(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => MolarEnergy.FromJoulesPerMole(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromJoulesPerMole_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => MolarEnergy.FromJoulesPerMole(double.NaN));
         }
 
         [Fact]
@@ -197,5 +228,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(MolarEnergyUnit.Undefined, MolarEnergy.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(MolarEnergyUnit)).Cast<MolarEnergyUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == MolarEnergyUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

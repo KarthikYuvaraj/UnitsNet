@@ -1,4 +1,4 @@
-function GenerateUnitSystemDefaultSourceCode($quantities)
+﻿function GenerateUnitSystemDefaultSourceCode($quantities)
 {
 @"
 //------------------------------------------------------------------------------
@@ -12,7 +12,6 @@ function GenerateUnitSystemDefaultSourceCode($quantities)
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -39,6 +38,8 @@ function GenerateUnitSystemDefaultSourceCode($quantities)
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnitsNet.I18n;
@@ -49,47 +50,33 @@ using UnitsNet.Units;
 
 namespace UnitsNet
 {
-    public sealed partial class UnitSystem
+    public partial class UnitAbbreviationsCache
     {
-        private static readonly ReadOnlyCollection<UnitLocalization> DefaultLocalizations
-            = new ReadOnlyCollection<UnitLocalization>(new List<UnitLocalization>
+        private static readonly Tuple<string, Type, int, string[]>[] GeneratedLocalizations
+            = new Tuple<string, Type, int, string[]>[]
             {
 "@;
     foreach ($quantity in $quantities) 
     {
         $quantityName = $quantity.Name;
         $unitEnumName = "$quantityName" + "Unit";
-@"
-                new UnitLocalization(typeof ($unitEnumName),
-                    new[]
-                    {
-"@;
+
         foreach ($unit in $quantity.Units) 
         {
             $enumValue = $unit.SingularName;
-@"
-                        new CulturesForEnumValue((int) $unitEnumName.$enumValue,
-                            new[]
-                            {
-"@;
+
             foreach ($localization in $unit.Localization) 
             {
                 $cultureName = $localization.Culture;
                 $abbreviationParams = $localization.Abbreviations -join '", "'
 @"
-                                new AbbreviationsForCulture("$cultureName", "$abbreviationParams"),
+                Tuple.Create(`"$cultureName`", typeof($unitEnumName), (int)$unitEnumName.$enumValue, new string[]{`"$abbreviationParams`"}),
 "@;
             }
-@"
-                            }),
-"@;
         }
-@"
-                    }),
-"@;
     }
 @"
-             });
+            };
     }
 }
 "@;

@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -100,6 +99,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Torque((double)0.0, TorqueUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Torque(double.PositiveInfinity, TorqueUnit.NewtonMeter));
+            Assert.Throws<ArgumentException>(() => new Torque(double.NegativeInfinity, TorqueUnit.NewtonMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Torque(double.NaN, TorqueUnit.NewtonMeter));
+        }
+
+        [Fact]
         public void NewtonMeterToTorqueUnits()
         {
             Torque newtonmeter = Torque.FromNewtonMeters(1);
@@ -150,6 +168,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, Torque.From(1, TorqueUnit.TonneForceCentimeter).TonneForceCentimeters, TonneForceCentimetersTolerance);
             AssertEx.EqualTolerance(1, Torque.From(1, TorqueUnit.TonneForceMeter).TonneForceMeters, TonneForceMetersTolerance);
             AssertEx.EqualTolerance(1, Torque.From(1, TorqueUnit.TonneForceMillimeter).TonneForceMillimeters, TonneForceMillimetersTolerance);
+        }
+
+        [Fact]
+        public void FromNewtonMeters_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Torque.FromNewtonMeters(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Torque.FromNewtonMeters(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromNewtonMeters_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Torque.FromNewtonMeters(double.NaN));
         }
 
         [Fact]
@@ -377,5 +408,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(TorqueUnit.Undefined, Torque.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(TorqueUnit)).Cast<TorqueUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == TorqueUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -92,6 +91,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new SpecificWeight((double)0.0, SpecificWeightUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new SpecificWeight(double.PositiveInfinity, SpecificWeightUnit.NewtonPerCubicMeter));
+            Assert.Throws<ArgumentException>(() => new SpecificWeight(double.NegativeInfinity, SpecificWeightUnit.NewtonPerCubicMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new SpecificWeight(double.NaN, SpecificWeightUnit.NewtonPerCubicMeter));
+        }
+
+        [Fact]
         public void NewtonPerCubicMeterToSpecificWeightUnits()
         {
             SpecificWeight newtonpercubicmeter = SpecificWeight.FromNewtonsPerCubicMeter(1);
@@ -134,6 +152,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, SpecificWeight.From(1, SpecificWeightUnit.TonneForcePerCubicCentimeter).TonnesForcePerCubicCentimeter, TonnesForcePerCubicCentimeterTolerance);
             AssertEx.EqualTolerance(1, SpecificWeight.From(1, SpecificWeightUnit.TonneForcePerCubicMeter).TonnesForcePerCubicMeter, TonnesForcePerCubicMeterTolerance);
             AssertEx.EqualTolerance(1, SpecificWeight.From(1, SpecificWeightUnit.TonneForcePerCubicMillimeter).TonnesForcePerCubicMillimeter, TonnesForcePerCubicMillimeterTolerance);
+        }
+
+        [Fact]
+        public void FromNewtonsPerCubicMeter_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => SpecificWeight.FromNewtonsPerCubicMeter(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => SpecificWeight.FromNewtonsPerCubicMeter(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromNewtonsPerCubicMeter_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => SpecificWeight.FromNewtonsPerCubicMeter(double.NaN));
         }
 
         [Fact]
@@ -337,5 +368,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(SpecificWeightUnit.Undefined, SpecificWeight.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(SpecificWeightUnit)).Cast<SpecificWeightUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == SpecificWeightUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

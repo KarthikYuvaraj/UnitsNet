@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -66,6 +65,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new PressureChangeRate((double)0.0, PressureChangeRateUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new PressureChangeRate(double.PositiveInfinity, PressureChangeRateUnit.PascalPerSecond));
+            Assert.Throws<ArgumentException>(() => new PressureChangeRate(double.NegativeInfinity, PressureChangeRateUnit.PascalPerSecond));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new PressureChangeRate(double.NaN, PressureChangeRateUnit.PascalPerSecond));
+        }
+
+        [Fact]
         public void PascalPerSecondToPressureChangeRateUnits()
         {
             PressureChangeRate pascalpersecond = PressureChangeRate.FromPascalsPerSecond(1);
@@ -82,6 +100,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, PressureChangeRate.From(1, PressureChangeRateUnit.KilopascalPerSecond).KilopascalsPerSecond, KilopascalsPerSecondTolerance);
             AssertEx.EqualTolerance(1, PressureChangeRate.From(1, PressureChangeRateUnit.MegapascalPerSecond).MegapascalsPerSecond, MegapascalsPerSecondTolerance);
             AssertEx.EqualTolerance(1, PressureChangeRate.From(1, PressureChangeRateUnit.PascalPerSecond).PascalsPerSecond, PascalsPerSecondTolerance);
+        }
+
+        [Fact]
+        public void FromPascalsPerSecond_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => PressureChangeRate.FromPascalsPerSecond(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => PressureChangeRate.FromPascalsPerSecond(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromPascalsPerSecond_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => PressureChangeRate.FromPascalsPerSecond(double.NaN));
         }
 
         [Fact]
@@ -207,5 +238,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(PressureChangeRateUnit.Undefined, PressureChangeRate.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(PressureChangeRateUnit)).Cast<PressureChangeRateUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == PressureChangeRateUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

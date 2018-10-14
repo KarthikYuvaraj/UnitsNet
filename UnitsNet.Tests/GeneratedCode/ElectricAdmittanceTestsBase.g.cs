@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -66,6 +65,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricAdmittance((double)0.0, ElectricAdmittanceUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricAdmittance(double.PositiveInfinity, ElectricAdmittanceUnit.Siemens));
+            Assert.Throws<ArgumentException>(() => new ElectricAdmittance(double.NegativeInfinity, ElectricAdmittanceUnit.Siemens));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricAdmittance(double.NaN, ElectricAdmittanceUnit.Siemens));
+        }
+
+        [Fact]
         public void SiemensToElectricAdmittanceUnits()
         {
             ElectricAdmittance siemens = ElectricAdmittance.FromSiemens(1);
@@ -82,6 +100,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, ElectricAdmittance.From(1, ElectricAdmittanceUnit.Millisiemens).Millisiemens, MillisiemensTolerance);
             AssertEx.EqualTolerance(1, ElectricAdmittance.From(1, ElectricAdmittanceUnit.Nanosiemens).Nanosiemens, NanosiemensTolerance);
             AssertEx.EqualTolerance(1, ElectricAdmittance.From(1, ElectricAdmittanceUnit.Siemens).Siemens, SiemensTolerance);
+        }
+
+        [Fact]
+        public void FromSiemens_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricAdmittance.FromSiemens(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => ElectricAdmittance.FromSiemens(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromSiemens_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricAdmittance.FromSiemens(double.NaN));
         }
 
         [Fact]
@@ -207,5 +238,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ElectricAdmittanceUnit.Undefined, ElectricAdmittance.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ElectricAdmittanceUnit)).Cast<ElectricAdmittanceUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ElectricAdmittanceUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

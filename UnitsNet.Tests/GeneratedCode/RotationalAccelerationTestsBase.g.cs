@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -64,6 +63,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new RotationalAcceleration((double)0.0, RotationalAccelerationUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new RotationalAcceleration(double.PositiveInfinity, RotationalAccelerationUnit.RadianPerSecondSquared));
+            Assert.Throws<ArgumentException>(() => new RotationalAcceleration(double.NegativeInfinity, RotationalAccelerationUnit.RadianPerSecondSquared));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new RotationalAcceleration(double.NaN, RotationalAccelerationUnit.RadianPerSecondSquared));
+        }
+
+        [Fact]
         public void RadianPerSecondSquaredToRotationalAccelerationUnits()
         {
             RotationalAcceleration radianpersecondsquared = RotationalAcceleration.FromRadiansPerSecondSquared(1);
@@ -78,6 +96,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, RotationalAcceleration.From(1, RotationalAccelerationUnit.DegreePerSecondSquared).DegreesPerSecondSquared, DegreesPerSecondSquaredTolerance);
             AssertEx.EqualTolerance(1, RotationalAcceleration.From(1, RotationalAccelerationUnit.RadianPerSecondSquared).RadiansPerSecondSquared, RadiansPerSecondSquaredTolerance);
             AssertEx.EqualTolerance(1, RotationalAcceleration.From(1, RotationalAccelerationUnit.RevolutionPerMinutePerSecond).RevolutionsPerMinutePerSecond, RevolutionsPerMinutePerSecondTolerance);
+        }
+
+        [Fact]
+        public void FromRadiansPerSecondSquared_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => RotationalAcceleration.FromRadiansPerSecondSquared(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => RotationalAcceleration.FromRadiansPerSecondSquared(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromRadiansPerSecondSquared_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => RotationalAcceleration.FromRadiansPerSecondSquared(double.NaN));
         }
 
         [Fact]
@@ -197,5 +228,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(RotationalAccelerationUnit.Undefined, RotationalAcceleration.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(RotationalAccelerationUnit)).Cast<RotationalAccelerationUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == RotationalAccelerationUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

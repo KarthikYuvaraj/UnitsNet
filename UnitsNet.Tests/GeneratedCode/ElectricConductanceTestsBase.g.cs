@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -64,6 +63,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricConductance((double)0.0, ElectricConductanceUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricConductance(double.PositiveInfinity, ElectricConductanceUnit.Siemens));
+            Assert.Throws<ArgumentException>(() => new ElectricConductance(double.NegativeInfinity, ElectricConductanceUnit.Siemens));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricConductance(double.NaN, ElectricConductanceUnit.Siemens));
+        }
+
+        [Fact]
         public void SiemensToElectricConductanceUnits()
         {
             ElectricConductance siemens = ElectricConductance.FromSiemens(1);
@@ -78,6 +96,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, ElectricConductance.From(1, ElectricConductanceUnit.Microsiemens).Microsiemens, MicrosiemensTolerance);
             AssertEx.EqualTolerance(1, ElectricConductance.From(1, ElectricConductanceUnit.Millisiemens).Millisiemens, MillisiemensTolerance);
             AssertEx.EqualTolerance(1, ElectricConductance.From(1, ElectricConductanceUnit.Siemens).Siemens, SiemensTolerance);
+        }
+
+        [Fact]
+        public void FromSiemens_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricConductance.FromSiemens(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => ElectricConductance.FromSiemens(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromSiemens_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricConductance.FromSiemens(double.NaN));
         }
 
         [Fact]
@@ -197,5 +228,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ElectricConductanceUnit.Undefined, ElectricConductance.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ElectricConductanceUnit)).Cast<ElectricConductanceUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ElectricConductanceUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

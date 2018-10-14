@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -62,6 +61,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new HeatTransferCoefficient((double)0.0, HeatTransferCoefficientUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new HeatTransferCoefficient(double.PositiveInfinity, HeatTransferCoefficientUnit.WattPerSquareMeterKelvin));
+            Assert.Throws<ArgumentException>(() => new HeatTransferCoefficient(double.NegativeInfinity, HeatTransferCoefficientUnit.WattPerSquareMeterKelvin));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new HeatTransferCoefficient(double.NaN, HeatTransferCoefficientUnit.WattPerSquareMeterKelvin));
+        }
+
+        [Fact]
         public void WattPerSquareMeterKelvinToHeatTransferCoefficientUnits()
         {
             HeatTransferCoefficient wattpersquaremeterkelvin = HeatTransferCoefficient.FromWattsPerSquareMeterKelvin(1);
@@ -74,6 +92,19 @@ namespace UnitsNet.Tests
         {
             AssertEx.EqualTolerance(1, HeatTransferCoefficient.From(1, HeatTransferCoefficientUnit.WattPerSquareMeterCelsius).WattsPerSquareMeterCelsius, WattsPerSquareMeterCelsiusTolerance);
             AssertEx.EqualTolerance(1, HeatTransferCoefficient.From(1, HeatTransferCoefficientUnit.WattPerSquareMeterKelvin).WattsPerSquareMeterKelvin, WattsPerSquareMeterKelvinTolerance);
+        }
+
+        [Fact]
+        public void FromWattsPerSquareMeterKelvin_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => HeatTransferCoefficient.FromWattsPerSquareMeterKelvin(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => HeatTransferCoefficient.FromWattsPerSquareMeterKelvin(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromWattsPerSquareMeterKelvin_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => HeatTransferCoefficient.FromWattsPerSquareMeterKelvin(double.NaN));
         }
 
         [Fact]
@@ -187,5 +218,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(HeatTransferCoefficientUnit.Undefined, HeatTransferCoefficient.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(HeatTransferCoefficientUnit)).Cast<HeatTransferCoefficientUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == HeatTransferCoefficientUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

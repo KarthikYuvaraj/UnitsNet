@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -60,6 +59,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricCurrentDensity((double)0.0, ElectricCurrentDensityUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricCurrentDensity(double.PositiveInfinity, ElectricCurrentDensityUnit.AmperePerSquareMeter));
+            Assert.Throws<ArgumentException>(() => new ElectricCurrentDensity(double.NegativeInfinity, ElectricCurrentDensityUnit.AmperePerSquareMeter));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricCurrentDensity(double.NaN, ElectricCurrentDensityUnit.AmperePerSquareMeter));
+        }
+
+        [Fact]
         public void AmperePerSquareMeterToElectricCurrentDensityUnits()
         {
             ElectricCurrentDensity amperepersquaremeter = ElectricCurrentDensity.FromAmperesPerSquareMeter(1);
@@ -70,6 +88,19 @@ namespace UnitsNet.Tests
         public void FromValueAndUnit()
         {
             AssertEx.EqualTolerance(1, ElectricCurrentDensity.From(1, ElectricCurrentDensityUnit.AmperePerSquareMeter).AmperesPerSquareMeter, AmperesPerSquareMeterTolerance);
+        }
+
+        [Fact]
+        public void FromAmperesPerSquareMeter_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricCurrentDensity.FromAmperesPerSquareMeter(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => ElectricCurrentDensity.FromAmperesPerSquareMeter(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromAmperesPerSquareMeter_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricCurrentDensity.FromAmperesPerSquareMeter(double.NaN));
         }
 
         [Fact]
@@ -177,5 +208,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ElectricCurrentDensityUnit.Undefined, ElectricCurrentDensity.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ElectricCurrentDensityUnit)).Cast<ElectricCurrentDensityUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ElectricCurrentDensityUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

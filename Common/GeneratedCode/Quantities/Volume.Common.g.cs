@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -37,11 +36,9 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Linq;
 using JetBrains.Annotations;
+using UnitsNet.InternalHelpers;
 using UnitsNet.Units;
 
 // ReSharper disable once CheckNamespace
@@ -85,9 +82,10 @@ namespace UnitsNet
         /// <summary>
         ///     Creates the quantity with the given numeric value and unit.
         /// </summary>
-        /// <param name="numericValue">Numeric value.</param>
+        /// <param name="numericValue">The numeric value  to contruct this quantity with.</param>
         /// <param name="unit">The unit representation to contruct this quantity with.</param>
         /// <remarks>Value parameter cannot be named 'value' due to constraint when targeting Windows Runtime Component.</remarks>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         private
 #else
@@ -95,7 +93,10 @@ namespace UnitsNet
 #endif
         Volume(double numericValue, VolumeUnit unit)
         {
-            _value = numericValue;
+            if(unit == VolumeUnit.Undefined)
+              throw new ArgumentException("The quantity can not be created with an undefined unit.", nameof(unit));
+
+            _value = Guard.EnsureValidNumber(numericValue, nameof(numericValue));
             _unit = unit;
         }
 
@@ -346,6 +347,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from AuTablespoons.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromAuTablespoons(double autablespoons)
@@ -360,6 +362,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from Centiliters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromCentiliters(double centiliters)
@@ -374,6 +377,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from CubicCentimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromCubicCentimeters(double cubiccentimeters)
@@ -388,6 +392,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from CubicDecimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromCubicDecimeters(double cubicdecimeters)
@@ -402,6 +407,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from CubicFeet.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromCubicFeet(double cubicfeet)
@@ -416,6 +422,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from CubicInches.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromCubicInches(double cubicinches)
@@ -430,6 +437,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from CubicKilometers.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromCubicKilometers(double cubickilometers)
@@ -444,6 +452,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from CubicMeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromCubicMeters(double cubicmeters)
@@ -458,6 +467,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from CubicMicrometers.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromCubicMicrometers(double cubicmicrometers)
@@ -472,6 +482,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from CubicMiles.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromCubicMiles(double cubicmiles)
@@ -486,6 +497,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from CubicMillimeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromCubicMillimeters(double cubicmillimeters)
@@ -500,6 +512,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from CubicYards.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromCubicYards(double cubicyards)
@@ -514,6 +527,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from Deciliters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromDeciliters(double deciliters)
@@ -528,6 +542,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from HectocubicFeet.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromHectocubicFeet(double hectocubicfeet)
@@ -542,6 +557,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from HectocubicMeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromHectocubicMeters(double hectocubicmeters)
@@ -556,6 +572,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from Hectoliters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromHectoliters(double hectoliters)
@@ -570,6 +587,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from ImperialBeerBarrels.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromImperialBeerBarrels(double imperialbeerbarrels)
@@ -584,6 +602,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from ImperialGallons.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromImperialGallons(double imperialgallons)
@@ -598,6 +617,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from ImperialOunces.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromImperialOunces(double imperialounces)
@@ -612,6 +632,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from KilocubicFeet.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromKilocubicFeet(double kilocubicfeet)
@@ -626,6 +647,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from KilocubicMeters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromKilocubicMeters(double kilocubicmeters)
@@ -640,6 +662,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from KiloimperialGallons.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromKiloimperialGallons(double kiloimperialgallons)
@@ -654,6 +677,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from KilousGallons.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromKilousGallons(double kilousgallons)
@@ -668,6 +692,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from Liters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromLiters(double liters)
@@ -682,6 +707,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from MegacubicFeet.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromMegacubicFeet(double megacubicfeet)
@@ -696,6 +722,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from MegaimperialGallons.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromMegaimperialGallons(double megaimperialgallons)
@@ -710,6 +737,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from MegausGallons.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromMegausGallons(double megausgallons)
@@ -724,6 +752,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from MetricCups.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromMetricCups(double metriccups)
@@ -738,6 +767,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from MetricTeaspoons.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromMetricTeaspoons(double metricteaspoons)
@@ -752,6 +782,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from Microliters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromMicroliters(double microliters)
@@ -766,6 +797,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from Milliliters.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromMilliliters(double milliliters)
@@ -780,6 +812,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from OilBarrels.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromOilBarrels(double oilbarrels)
@@ -794,6 +827,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from UkTablespoons.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromUkTablespoons(double uktablespoons)
@@ -808,6 +842,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from UsBeerBarrels.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromUsBeerBarrels(double usbeerbarrels)
@@ -822,6 +857,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from UsCustomaryCups.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromUsCustomaryCups(double uscustomarycups)
@@ -836,6 +872,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from UsGallons.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromUsGallons(double usgallons)
@@ -850,6 +887,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from UsLegalCups.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromUsLegalCups(double uslegalcups)
@@ -864,6 +902,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from UsOunces.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromUsOunces(double usounces)
@@ -878,6 +917,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from UsPints.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromUsPints(double uspints)
@@ -892,6 +932,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from UsQuarts.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromUsQuarts(double usquarts)
@@ -906,6 +947,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from UsTablespoons.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromUsTablespoons(double ustablespoons)
@@ -920,6 +962,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get Volume from UsTeaspoons.
         /// </summary>
+        /// <exception cref="ArgumentException">If value is NaN or Infinity.</exception>
 #if WINDOWS_UWP
         [Windows.Foundation.Metadata.DefaultOverload]
         public static Volume FromUsTeaspoons(double usteaspoons)
@@ -1210,7 +1253,7 @@ namespace UnitsNet
         /// </exception>
         public static Volume Parse(string str)
         {
-            return Parse(str, null);
+            return ParseInternal(str, null);
         }
 
         /// <summary>
@@ -1223,7 +1266,7 @@ namespace UnitsNet
         /// </example>
         public static bool TryParse([CanBeNull] string str, out Volume result)
         {
-            return TryParse(str, null, out result);
+            return TryParseInternal(str, null, out result);
         }
 
         /// <summary>
@@ -1237,7 +1280,121 @@ namespace UnitsNet
         /// <exception cref="UnitsNetException">Error parsing string.</exception>
         public static VolumeUnit ParseUnit(string str)
         {
-            return ParseUnit(str, (IFormatProvider)null);
+            return ParseUnitInternal(str, null);
+        }
+
+        public static bool TryParseUnit(string str, out VolumeUnit unit)
+        {
+            return TryParseUnitInternal(str, null, out unit);
+        }
+
+        /// <summary>
+        ///     Parse a string with one or two quantities of the format "&lt;quantity&gt; &lt;unit&gt;".
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <example>
+        ///     Length.Parse("5.5 m", new CultureInfo("en-US"));
+        /// </example>
+        /// <exception cref="ArgumentNullException">The value of 'str' cannot be null. </exception>
+        /// <exception cref="ArgumentException">
+        ///     Expected string to have one or two pairs of quantity and unit in the format
+        ///     "&lt;quantity&gt; &lt;unit&gt;". Eg. "5.5 m" or "1ft 2in"
+        /// </exception>
+        /// <exception cref="AmbiguousUnitParseException">
+        ///     More than one unit is represented by the specified unit abbreviation.
+        ///     Example: Volume.Parse("1 cup") will throw, because it can refer to any of
+        ///     <see cref="VolumeUnit.MetricCup" />, <see cref="VolumeUnit.UsLegalCup" /> and <see cref="VolumeUnit.UsCustomaryCup" />.
+        /// </exception>
+        /// <exception cref="UnitsNetException">
+        ///     If anything else goes wrong, typically due to a bug or unhandled case.
+        ///     We wrap exceptions in <see cref="UnitsNetException" /> to allow you to distinguish
+        ///     Units.NET exceptions from other exceptions.
+        /// </exception>
+        private static Volume ParseInternal(string str, [CanBeNull] IFormatProvider provider)
+        {
+            if (str == null) throw new ArgumentNullException(nameof(str));
+
+            provider = provider ?? GlobalConfiguration.DefaultCulture;
+
+            return QuantityParser.Default.Parse<Volume, VolumeUnit>(str, provider, ParseUnitInternal, From,
+                (x, y) => From(x.CubicMeters + y.CubicMeters, BaseUnit));
+        }
+
+        /// <summary>
+        ///     Try to parse a string with one or two quantities of the format "&lt;quantity&gt; &lt;unit&gt;".
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <param name="result">Resulting unit quantity if successful.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        /// <example>
+        ///     Length.Parse("5.5 m", new CultureInfo("en-US"));
+        /// </example>
+        private static bool TryParseInternal([CanBeNull] string str, [CanBeNull] IFormatProvider provider, out Volume result)
+        {
+            result = default(Volume);
+
+            if(string.IsNullOrWhiteSpace(str))
+                return false;
+
+            provider = provider ?? GlobalConfiguration.DefaultCulture;
+
+            return QuantityParser.Default.TryParse<Volume, VolumeUnit>(str, provider, TryParseUnitInternal, From,
+                (x, y) => From(x.CubicMeters + y.CubicMeters, BaseUnit), out result);
+        }
+
+        /// <summary>
+        ///     Parse a unit string.
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <example>
+        ///     Length.ParseUnit("m", new CultureInfo("en-US"));
+        /// </example>
+        /// <exception cref="ArgumentNullException">The value of 'str' cannot be null. </exception>
+        /// <exception cref="UnitsNetException">Error parsing string.</exception>
+        private static VolumeUnit ParseUnitInternal(string str, IFormatProvider provider = null)
+        {
+            if (str == null) throw new ArgumentNullException(nameof(str));
+
+            var unit = UnitParser.Default.Parse<VolumeUnit>(str.Trim(), provider);
+
+            if (unit == VolumeUnit.Undefined)
+            {
+                var newEx = new UnitsNetException("Error parsing string. The unit is not a recognized VolumeUnit.");
+                newEx.Data["input"] = str;
+                newEx.Data["provider"] = provider?.ToString() ?? "(null)";
+                throw newEx;
+            }
+
+            return unit;
+        }
+
+        /// <summary>
+        ///     Parse a unit string.
+        /// </summary>
+        /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
+        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" />.</param>
+        /// <param name="unit">The parsed unit if successful.</param>
+        /// <returns>True if successful, otherwise false.</returns>
+        /// <example>
+        ///     Length.ParseUnit("m", new CultureInfo("en-US"));
+        /// </example>
+        private static bool TryParseUnitInternal(string str, IFormatProvider provider, out VolumeUnit unit)
+        {
+            unit = VolumeUnit.Undefined;
+
+            if(string.IsNullOrWhiteSpace(str))
+                return false;
+
+            if(!UnitParser.Default.TryParse<VolumeUnit>(str.Trim(), provider, out unit))
+                return false;
+
+            if(unit == VolumeUnit.Undefined)
+                return false;
+
+            return true;
         }
 
         #endregion

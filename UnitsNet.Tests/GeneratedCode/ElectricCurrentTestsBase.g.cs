@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -74,6 +73,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricCurrent((double)0.0, ElectricCurrentUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricCurrent(double.PositiveInfinity, ElectricCurrentUnit.Ampere));
+            Assert.Throws<ArgumentException>(() => new ElectricCurrent(double.NegativeInfinity, ElectricCurrentUnit.Ampere));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new ElectricCurrent(double.NaN, ElectricCurrentUnit.Ampere));
+        }
+
+        [Fact]
         public void AmpereToElectricCurrentUnits()
         {
             ElectricCurrent ampere = ElectricCurrent.FromAmperes(1);
@@ -98,6 +116,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, ElectricCurrent.From(1, ElectricCurrentUnit.Milliampere).Milliamperes, MilliamperesTolerance);
             AssertEx.EqualTolerance(1, ElectricCurrent.From(1, ElectricCurrentUnit.Nanoampere).Nanoamperes, NanoamperesTolerance);
             AssertEx.EqualTolerance(1, ElectricCurrent.From(1, ElectricCurrentUnit.Picoampere).Picoamperes, PicoamperesTolerance);
+        }
+
+        [Fact]
+        public void FromAmperes_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricCurrent.FromAmperes(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => ElectricCurrent.FromAmperes(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromAmperes_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => ElectricCurrent.FromAmperes(double.NaN));
         }
 
         [Fact]
@@ -247,5 +278,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(ElectricCurrentUnit.Undefined, ElectricCurrent.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(ElectricCurrentUnit)).Cast<ElectricCurrentUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == ElectricCurrentUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

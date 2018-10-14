@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -122,6 +121,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Speed((double)0.0, SpeedUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Speed(double.PositiveInfinity, SpeedUnit.MeterPerSecond));
+            Assert.Throws<ArgumentException>(() => new Speed(double.NegativeInfinity, SpeedUnit.MeterPerSecond));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new Speed(double.NaN, SpeedUnit.MeterPerSecond));
+        }
+
+        [Fact]
         public void MeterPerSecondToSpeedUnits()
         {
             Speed meterpersecond = Speed.FromMetersPerSecond(1);
@@ -194,6 +212,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, Speed.From(1, SpeedUnit.YardPerHour).YardsPerHour, YardsPerHourTolerance);
             AssertEx.EqualTolerance(1, Speed.From(1, SpeedUnit.YardPerMinute).YardsPerMinute, YardsPerMinuteTolerance);
             AssertEx.EqualTolerance(1, Speed.From(1, SpeedUnit.YardPerSecond).YardsPerSecond, YardsPerSecondTolerance);
+        }
+
+        [Fact]
+        public void FromMetersPerSecond_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Speed.FromMetersPerSecond(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => Speed.FromMetersPerSecond(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromMetersPerSecond_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => Speed.FromMetersPerSecond(double.NaN));
         }
 
         [Fact]
@@ -487,5 +518,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(SpeedUnit.Undefined, Speed.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(SpeedUnit)).Cast<SpeedUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == SpeedUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

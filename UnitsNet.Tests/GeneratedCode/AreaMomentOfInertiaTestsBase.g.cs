@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -70,6 +69,25 @@ namespace UnitsNet.Tests
 // ReSharper restore VirtualMemberNeverOverriden.Global
 
         [Fact]
+        public void Ctor_WithUndefinedUnit_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new AreaMomentOfInertia((double)0.0, AreaMomentOfInertiaUnit.Undefined));
+        }
+
+        [Fact]
+        public void Ctor_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new AreaMomentOfInertia(double.PositiveInfinity, AreaMomentOfInertiaUnit.MeterToTheFourth));
+            Assert.Throws<ArgumentException>(() => new AreaMomentOfInertia(double.NegativeInfinity, AreaMomentOfInertiaUnit.MeterToTheFourth));
+        }
+
+        [Fact]
+        public void Ctor_WithNaNValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new AreaMomentOfInertia(double.NaN, AreaMomentOfInertiaUnit.MeterToTheFourth));
+        }
+
+        [Fact]
         public void MeterToTheFourthToAreaMomentOfInertiaUnits()
         {
             AreaMomentOfInertia metertothefourth = AreaMomentOfInertia.FromMetersToTheFourth(1);
@@ -90,6 +108,19 @@ namespace UnitsNet.Tests
             AssertEx.EqualTolerance(1, AreaMomentOfInertia.From(1, AreaMomentOfInertiaUnit.InchToTheFourth).InchesToTheFourth, InchesToTheFourthTolerance);
             AssertEx.EqualTolerance(1, AreaMomentOfInertia.From(1, AreaMomentOfInertiaUnit.MeterToTheFourth).MetersToTheFourth, MetersToTheFourthTolerance);
             AssertEx.EqualTolerance(1, AreaMomentOfInertia.From(1, AreaMomentOfInertiaUnit.MillimeterToTheFourth).MillimetersToTheFourth, MillimetersToTheFourthTolerance);
+        }
+
+        [Fact]
+        public void FromMetersToTheFourth_WithInfinityValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => AreaMomentOfInertia.FromMetersToTheFourth(double.PositiveInfinity));
+            Assert.Throws<ArgumentException>(() => AreaMomentOfInertia.FromMetersToTheFourth(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void FromMetersToTheFourth_WithNanValue_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => AreaMomentOfInertia.FromMetersToTheFourth(double.NaN));
         }
 
         [Fact]
@@ -227,5 +258,17 @@ namespace UnitsNet.Tests
             Assert.DoesNotContain(AreaMomentOfInertiaUnit.Undefined, AreaMomentOfInertia.Units);
         }
 
+        [Fact]
+        public void AllUnitsHaveAtLeastOneAbbreviationSpecified()
+        {
+            var units = Enum.GetValues(typeof(AreaMomentOfInertiaUnit)).Cast<AreaMomentOfInertiaUnit>();
+            foreach(var unit in units)
+            {
+                if(unit == AreaMomentOfInertiaUnit.Undefined)
+                    continue;
+
+                var defaultAbbreviation = UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+            }
+        }
     }
 }

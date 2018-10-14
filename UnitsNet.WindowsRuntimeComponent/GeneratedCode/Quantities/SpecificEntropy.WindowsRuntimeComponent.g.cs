@@ -9,7 +9,6 @@
 //     See https://github.com/angularsen/UnitsNet/wiki/Adding-a-New-Unit for how to add or edit units.
 //
 //     Add CustomCode\Quantities\MyQuantity.extra.cs files to add code to generated quantities.
-//     Add Extensions\MyQuantityExtensions.cs to decorate quantities with new behavior.
 //     Add UnitDefinitions\MyQuantity.json and run GeneratUnits.bat to generate new units or quantities.
 //
 // </auto-generated>
@@ -37,10 +36,7 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text.RegularExpressions;
-using System.Linq;
 using JetBrains.Annotations;
 using UnitsNet.Units;
 
@@ -79,15 +75,15 @@ namespace UnitsNet
         ///     Get unit abbreviation string.
         /// </summary>
         /// <param name="unit">Unit to get abbreviation for.</param>
-        /// <param name="cultureName">Name of culture (ex: "en-US") to use for localization. Defaults to <see cref="UnitSystem" />'s default culture.</param>
+        /// <param name="cultureName">Name of culture (ex: "en-US") to use for localization. Defaults to <see cref="GlobalConfiguration.DefaultCulture" /> if null.</param>
         /// <returns>Unit abbreviation string.</returns>
         [UsedImplicitly]
         public static string GetAbbreviation(SpecificEntropyUnit unit, [CanBeNull] string cultureName)
         {
             // Windows Runtime Component does not support CultureInfo and IFormatProvider types, so we use culture name for public methods: https://msdn.microsoft.com/en-us/library/br230301.aspx
-            IFormatProvider provider = cultureName == null ? UnitSystem.DefaultCulture : new CultureInfo(cultureName);
+            IFormatProvider provider = cultureName == null ? GlobalConfiguration.DefaultCulture : new CultureInfo(cultureName);
 
-            return UnitSystem.GetCached(provider).GetDefaultAbbreviation(unit);
+            return UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit, provider);
         }
 
         #region Parsing
@@ -96,7 +92,7 @@ namespace UnitsNet
         ///     Parse a string with one or two quantities of the format "&lt;quantity&gt; &lt;unit&gt;".
         /// </summary>
         /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
-        /// <param name="cultureName">Name of culture (ex: "en-US") to use when parsing number and unit. Defaults to <see cref="UnitSystem" />'s default culture.</param>
+        /// <param name="cultureName">Name of culture (ex: "en-US") to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" /> if null.</param>
         /// <example>
         ///     Length.Parse("5.5 m", new CultureInfo("en-US"));
         /// </example>
@@ -120,45 +116,33 @@ namespace UnitsNet
             if (str == null) throw new ArgumentNullException(nameof(str));
 
             // Windows Runtime Component does not support CultureInfo and IFormatProvider types, so we use culture name for public methods: https://msdn.microsoft.com/en-us/library/br230301.aspx
-            IFormatProvider provider = cultureName == null ? UnitSystem.DefaultCulture : new CultureInfo(cultureName);
+            IFormatProvider provider = cultureName == null ? GlobalConfiguration.DefaultCulture : new CultureInfo(cultureName);
 
-            return QuantityParser.Parse<SpecificEntropy, SpecificEntropyUnit>(str, provider,
-                delegate(string value, string unit, IFormatProvider formatProvider2)
-                {
-                    double parsedValue = double.Parse(value, formatProvider2);
-                    SpecificEntropyUnit parsedUnit = ParseUnit(unit, formatProvider2);
-                    return From(parsedValue, parsedUnit);
-                }, (x, y) => FromJoulesPerKilogramKelvin(x.JoulesPerKilogramKelvin + y.JoulesPerKilogramKelvin));
+            return ParseInternal(str, provider);
         }
 
         /// <summary>
         ///     Try to parse a string with one or two quantities of the format "&lt;quantity&gt; &lt;unit&gt;".
         /// </summary>
         /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
-        /// <param name="cultureName">Name of culture (ex: "en-US") to use when parsing number and unit. Defaults to <see cref="UnitSystem" />'s default culture.</param>
+        /// <param name="cultureName">Name of culture (ex: "en-US") to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" /> if null.</param>
         /// <param name="result">Resulting unit quantity if successful.</param>
         /// <example>
         ///     Length.Parse("5.5 m", new CultureInfo("en-US"));
         /// </example>
         public static bool TryParse([CanBeNull] string str, [CanBeNull] string cultureName, out SpecificEntropy result)
         {
-            try
-            {
-                result = Parse(str, cultureName);
-                return true;
-            }
-            catch
-            {
-                result = default(SpecificEntropy);
-                return false;
-            }
+            // Windows Runtime Component does not support CultureInfo and IFormatProvider types, so we use culture name for public methods: https://msdn.microsoft.com/en-us/library/br230301.aspx
+            IFormatProvider provider = cultureName == null ? GlobalConfiguration.DefaultCulture : new CultureInfo(cultureName);
+
+            return TryParseInternal(str, provider, out result);
         }
 
         /// <summary>
         ///     Parse a unit string.
         /// </summary>
         /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
-        /// <param name="cultureName">Name of culture (ex: "en-US") to use when parsing number and unit. Defaults to <see cref="UnitSystem" />'s default culture.</param>
+        /// <param name="cultureName">Name of culture (ex: "en-US") to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" /> if null.</param>
         /// <example>
         ///     Length.ParseUnit("m", new CultureInfo("en-US"));
         /// </example>
@@ -166,35 +150,28 @@ namespace UnitsNet
         /// <exception cref="UnitsNetException">Error parsing string.</exception>
         public static SpecificEntropyUnit ParseUnit(string str, [CanBeNull] string cultureName)
         {
-            return ParseUnit(str, cultureName == null ? null : new CultureInfo(cultureName));
+            // Windows Runtime Component does not support CultureInfo and IFormatProvider types, so we use culture name for public methods: https://msdn.microsoft.com/en-us/library/br230301.aspx
+            IFormatProvider provider = cultureName == null ? GlobalConfiguration.DefaultCulture : new CultureInfo(cultureName);
+
+            return ParseUnitInternal(str, provider);
         }
 
         /// <summary>
-        ///     Parse a unit string.
+        ///     Try to parse a unit string.
         /// </summary>
         /// <param name="str">String to parse. Typically in the form: {number} {unit}</param>
-        /// <param name="provider">Format to use when parsing number and unit. Defaults to <see cref="UnitSystem.DefaultCulture" />.</param>
+        /// <param name="cultureName">Name of culture (ex: "en-US") to use when parsing number and unit. Defaults to <see cref="GlobalConfiguration.DefaultCulture" /> if null.</param>
+        /// <param name="unit">The parsed unit if successful.</param>
+        /// <returns>True if successful, otherwise false.</returns>
         /// <example>
-        ///     Length.ParseUnit("m", new CultureInfo("en-US"));
+        ///     Length.TryParseUnit("m", new CultureInfo("en-US"));
         /// </example>
-        /// <exception cref="ArgumentNullException">The value of 'str' cannot be null. </exception>
-        /// <exception cref="UnitsNetException">Error parsing string.</exception>
-        internal static SpecificEntropyUnit ParseUnit(string str, IFormatProvider provider = null)
+        public static bool TryParseUnit(string str, [CanBeNull] string cultureName, out SpecificEntropyUnit unit)
         {
-            if (str == null) throw new ArgumentNullException(nameof(str));
+            // Windows Runtime Component does not support CultureInfo and IFormatProvider types, so we use culture name for public methods: https://msdn.microsoft.com/en-us/library/br230301.aspx
+            IFormatProvider provider = cultureName == null ? GlobalConfiguration.DefaultCulture : new CultureInfo(cultureName);
 
-            var unitSystem = UnitSystem.GetCached(provider);
-            var unit = unitSystem.Parse<SpecificEntropyUnit>(str.Trim());
-
-            if (unit == SpecificEntropyUnit.Undefined)
-            {
-                var newEx = new UnitsNetException("Error parsing string. The unit is not a recognized SpecificEntropyUnit.");
-                newEx.Data["input"] = str;
-                newEx.Data["provider"] = provider?.ToString() ?? "(null)";
-                throw newEx;
-            }
-
-            return unit;
+            return TryParseUnitInternal(str, provider, out unit);
         }
 
         #endregion
@@ -205,7 +182,7 @@ namespace UnitsNet
         ///     Get string representation of value and unit. Using two significant digits after radix.
         /// </summary>
         /// <param name="unit">Unit representation to use.</param>
-        /// <param name="cultureName">Name of culture (ex: "en-US") to use for localization and number formatting. Defaults to <see cref="UnitSystem" />'s default culture.</param>
+        /// <param name="cultureName">Name of culture (ex: "en-US") to use for localization and number formatting. Defaults to <see cref="GlobalConfiguration.DefaultCulture" /> if null.</param>
         /// <returns>String representation.</returns>
         public string ToString(SpecificEntropyUnit unit, [CanBeNull] string cultureName)
         {
@@ -216,7 +193,7 @@ namespace UnitsNet
         ///     Get string representation of value and unit.
         /// </summary>
         /// <param name="unit">Unit representation to use.</param>
-        /// <param name="cultureName">Name of culture (ex: "en-US") to use for localization and number formatting. Defaults to <see cref="UnitSystem" />'s default culture.</param>
+        /// <param name="cultureName">Name of culture (ex: "en-US") to use for localization and number formatting. Defaults to <see cref="GlobalConfiguration.DefaultCulture" /> if null.</param>
         /// <param name="significantDigitsAfterRadix">The number of significant digits after the radix point.</param>
         /// <returns>String representation.</returns>
         [UsedImplicitly]
@@ -230,7 +207,7 @@ namespace UnitsNet
         /// <summary>
         ///     Get string representation of value and unit.
         /// </summary>
-        /// <param name="cultureName">Name of culture (ex: "en-US") to use for localization and number formatting. Defaults to <see cref="UnitSystem" />'s default culture.</param>
+        /// <param name="cultureName">Name of culture (ex: "en-US") to use for localization and number formatting. Defaults to <see cref="GlobalConfiguration.DefaultCulture" /> if null.</param>
         /// <param name="unit">Unit representation to use.</param>
         /// <param name="format">String format to use. Default:  "{0:0.##} {1} for value and unit abbreviation respectively."</param>
         /// <param name="args">Arguments for string format. Value and unit are implictly included as arguments 0 and 1.</param>
@@ -242,7 +219,7 @@ namespace UnitsNet
             if (args == null) throw new ArgumentNullException(nameof(args));
 
             // Windows Runtime Component does not support CultureInfo and IFormatProvider types, so we use culture name for public methods: https://msdn.microsoft.com/en-us/library/br230301.aspx
-            IFormatProvider provider = cultureName == null ? UnitSystem.DefaultCulture : new CultureInfo(cultureName);
+            IFormatProvider provider = cultureName == null ? GlobalConfiguration.DefaultCulture : new CultureInfo(cultureName);
 
             double value = As(unit);
             object[] formatArgs = UnitFormatter.GetFormatArgs(unit, value, provider, args);
