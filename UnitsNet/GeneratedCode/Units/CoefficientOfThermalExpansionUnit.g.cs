@@ -41,49 +41,12 @@ namespace UnitsNet.Units
     // Disable missing XML comment warnings for the generated unit enums.
     #pragma warning disable 1591
 
-    public enum PressureUnit
+    public enum CoefficientOfThermalExpansionUnit
     {
         Undefined = 0,
-        Atmosphere,
-        Bar,
-        Centibar,
-        Decapascal,
-        Decibar,
-        DynePerSquareCentimeter,
-        FootOfHead,
-        Gigapascal,
-        Hectopascal,
-        InchOfMercury,
-        Kilobar,
-        KilogramForcePerSquareCentimeter,
-        KilogramForcePerSquareMeter,
-        KilogramForcePerSquareMillimeter,
-        KilonewtonPerSquareCentimeter,
-        KilonewtonPerSquareMeter,
-        KilonewtonPerSquareMillimeter,
-        Kilopascal,
-        KilopoundForcePerSquareFoot,
-        KilopoundForcePerSquareInch,
-        Megabar,
-        MeganewtonPerSquareMeter,
-        Megapascal,
-        MeterOfHead,
-        Microbar,
-        Micropascal,
-        Millibar,
-        MillimeterOfMercury,
-        NewtonPerSquareCentimeter,
-        NewtonPerSquareMeter,
-        NewtonPerSquareMillimeter,
-        Pascal,
-        PoundForcePerSquareFoot,
-        PoundForcePerSquareInch,
-        PoundPerInchSecondSquared,
-        TechnicalAtmosphere,
-        TonneForcePerSquareCentimeter,
-        TonneForcePerSquareMeter,
-        TonneForcePerSquareMillimeter,
-        Torr,
+        InverseDegreeCelsius,
+        InverseDegreeFahrenheit,
+        InverseKelvin,
     }
 
     #pragma warning restore 1591

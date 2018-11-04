@@ -21,6 +21,7 @@
 
 using System;
 using System.Text;
+using System.Linq;
 
 namespace UnitsNet
 {
@@ -41,35 +42,56 @@ namespace UnitsNet
             LuminousIntensity = luminousIntensity;
         }
 
+        /// <summary>
+        /// Checks if the dimensions represent a base quantity.
+        /// </summary>
+        /// <returns>True if the dimensions represent a base quantity, otherwise false.</returns>
+        public bool IsBaseQuantity()
+        {
+            var dimensionsArray = new int[]{Length, Mass, Time, Current, Temperature, Amount, LuminousIntensity};
+            bool onlyOneEqualsOne = dimensionsArray.Where(dimension => dimension == 1).Take(2).Count() == 1;
+            return onlyOneEqualsOne;
+        }
+
+        /// <summary>
+        /// Checks if the dimensions represent a derived quantity.
+        /// </summary>
+        /// <returns>True if the dimensions represent a derived quantity, otherwise false.</returns>
+        public bool IsDerivedQuantity()
+        {
+            return !IsBaseQuantity() && !IsDimensionless();
+        }
+        
+        /// <summary>
+        /// Checks if this base dimensions object represents a dimensionless quantity.
+        /// </summary>
+        /// <returns>True if this object represents a dimensionless quantity, otherwise false.</returns>
+        public bool IsDimensionless()
+        {
+            return this == Dimensionless;
+        }
+
         /// <inheritdoc />
         public override bool Equals(object obj)
         {
             if(obj is null || !(obj is BaseDimensions))
                 return false;
 
-            var baseDimensionsObj = (BaseDimensions)obj;
+            var other = (BaseDimensions)obj;
 
-            return Length == baseDimensionsObj.Length &&
-                Mass == baseDimensionsObj.Mass &&
-                Time == baseDimensionsObj.Time &&
-                Current == baseDimensionsObj.Current &&
-                Temperature == baseDimensionsObj.Temperature &&
-                Amount == baseDimensionsObj.Amount &&
-                LuminousIntensity == baseDimensionsObj.LuminousIntensity;
+            return Length == other.Length &&
+                Mass == other.Mass &&
+                Time == other.Time &&
+                Current == other.Current &&
+                Temperature == other.Temperature &&
+                Amount == other.Amount &&
+                LuminousIntensity == other.LuminousIntensity;
         }
 
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            int hash = 17;
-            hash = hash * 23 + Length;
-            hash = hash * 23 + Mass;
-            hash = hash * 23 + Time;
-            hash = hash * 23 + Current;
-            hash = hash * 23 + Temperature;
-            hash = hash * 23 + Amount;
-            hash = hash * 23 + LuminousIntensity;
-            return hash;
+            return new {Length, Mass, Time, Current, Temperature, Amount, LuminousIntensity}.GetHashCode();
         }
 
         /// <summary>
@@ -79,6 +101,9 @@ namespace UnitsNet
         /// <returns>Resulting dimensions.</returns>
         public BaseDimensions Multiply(BaseDimensions right)
         {
+            if(right is null)
+                throw new ArgumentNullException(nameof(right));
+
             return new BaseDimensions(
                 Length + right.Length,
                 Mass + right.Mass,
@@ -96,6 +121,9 @@ namespace UnitsNet
         /// <returns>Resulting dimensions.</returns>
         public BaseDimensions Divide(BaseDimensions right)
         {
+            if(right is null)
+                throw new ArgumentNullException(nameof(right));
+
             return new BaseDimensions(
                 Length - right.Length,
                 Mass - right.Mass,
@@ -107,6 +135,7 @@ namespace UnitsNet
         }
 
 #if !WINDOWS_UWP
+
         /// <summary>
         /// Check if two dimensions are equal.
         /// </summary>
@@ -115,7 +144,7 @@ namespace UnitsNet
         /// <returns>True if equal.</returns>
         public static bool operator ==(BaseDimensions left, BaseDimensions right)
         {
-            return left?.Equals(right) == true;
+            return left is null ? right is null : left.Equals(right);
         }
 
         /// <summary>
@@ -137,6 +166,11 @@ namespace UnitsNet
         /// <returns>Resulting dimensions.</returns>
         public static BaseDimensions operator *(BaseDimensions left, BaseDimensions right)
         {
+            if(left is null)
+                throw new ArgumentNullException(nameof(left));
+            else if(right is null)
+                throw new ArgumentNullException(nameof(right));
+
             return left.Multiply(right);
         }
 
@@ -148,8 +182,14 @@ namespace UnitsNet
         /// <returns>Resulting dimensions.</returns>
         public static BaseDimensions operator /(BaseDimensions left, BaseDimensions right)
         {
+            if(left is null)
+                throw new ArgumentNullException(nameof(left));
+            else if(right is null)
+                throw new ArgumentNullException(nameof(right));
+
             return left.Divide(right);
         }
+
 #endif
 
         /// <inheritdoc />
@@ -168,16 +208,16 @@ namespace UnitsNet
             return sb.ToString();
         }
 
-        private static void AppendDimensionString( StringBuilder sb, string name, int value )
+        private static void AppendDimensionString(StringBuilder sb, string name, int value)
         {
-            var absoluteValue = Math.Abs( value );
+            var absoluteValue = Math.Abs(value);
 
-            if( absoluteValue > 0 )
+            if(absoluteValue > 0)
             {
-                sb.AppendFormat( "[{0}]", name );
+                sb.AppendFormat("[{0}]", name);
 
-                if( absoluteValue > 1 )
-                    sb.AppendFormat( "^{0}", value );
+                if(absoluteValue > 1)
+                    sb.AppendFormat("^{0}", value);
             }
         }
 
@@ -215,5 +255,10 @@ namespace UnitsNet
         /// Gets the luminous intensity dimensions (J).
         /// </summary>
         public int LuminousIntensity{ get; }
+
+        /// <summary>
+        /// Represents a dimensionless (unitless) quantity.
+        /// </summary>
+        public static BaseDimensions Dimensionless { get; } = new BaseDimensions(0, 0, 0, 0, 0, 0, 0);
     }
 }

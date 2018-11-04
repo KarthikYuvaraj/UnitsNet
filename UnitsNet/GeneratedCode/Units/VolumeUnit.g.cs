@@ -66,6 +66,7 @@ namespace UnitsNet.Units
         KilocubicFoot,
         KilocubicMeter,
         KiloimperialGallon,
+        Kiloliter,
         KilousGallon,
         Liter,
         MegacubicFoot,

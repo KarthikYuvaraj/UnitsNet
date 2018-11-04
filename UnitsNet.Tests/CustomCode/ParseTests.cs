@@ -1,16 +1,16 @@
 ﻿// Copyright (c) 2013 Andreas Gullberg Larsen (andreas.larsen84@gmail.com).
 // https://github.com/angularsen/UnitsNet
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -38,6 +38,7 @@ namespace UnitsNet.Tests.CustomCode
     {
         [Theory]
         [InlineData("1km", 1000)]
+        [InlineData(" 1km ", 1000)] // Check that it also trims string
         [InlineData("1 km", 1000)]
         [InlineData("1e-3 km", 1)]
         [InlineData("5.5 m", 5.5)]
@@ -51,29 +52,15 @@ namespace UnitsNet.Tests.CustomCode
 
         [Theory]
         [InlineData(null, typeof(ArgumentNullException))] // Can't parse null.
-        [InlineData("1", typeof(ArgumentException))] // No unit abbreviation.
-        [InlineData("km", typeof(UnitsNetException))] // No value, wrong measurement type.
-        [InlineData("1 kg", typeof(UnitsNetException))] // Wrong measurement type.
-        [InlineData("1ft monkey 1in", typeof(UnitsNetException))] // Invalid separator between two valid measurements.
-        [InlineData("1ft 1invalid", typeof(UnitsNetException))] // Valid 
+        [InlineData("1", typeof(FormatException))] // No unit abbreviation.
+        [InlineData("km", typeof(FormatException))] // No value, wrong measurement type.
+        [InlineData("1 kg", typeof(FormatException))] // Wrong measurement type.
+        [InlineData("1ft monkey 1in", typeof(FormatException))] // Invalid separator between two valid measurements.
+        [InlineData("1ft 1invalid", typeof(FormatException))] // Valid
         public void ParseLength_InvalidString_USEnglish_ThrowsException(string s, Type expectedExceptionType)
         {
             var usEnglish = new CultureInfo("en-US");
             Assert.Throws(expectedExceptionType, () => Length.Parse(s, usEnglish));
-        }
-
-        [Theory]
-        [InlineData("1 ft 1 in", 13)]
-        [InlineData("1ft 1in", 13)]
-        [InlineData("1' 1\"", 13)]
-        [InlineData("1'1\"", 13)]
-        [InlineData("1ft1in", 13)]
-        [InlineData("1ft and 1in", 13)]
-        public void ParseLength_FeetInchesString_USEnglish(string s, double expected)
-        {
-            CultureInfo usEnglish = new CultureInfo("en-US");
-            double actual = Length.Parse(s, usEnglish).Inches;
-            Assert.Equal(expected, actual);
         }
 
         /// <exception cref="UnitsNetException">Error parsing string.</exception>
@@ -85,20 +72,24 @@ namespace UnitsNet.Tests.CustomCode
         {
             var numberFormat = (NumberFormatInfo) CultureInfo.InvariantCulture.NumberFormat.Clone();
             numberFormat.NumberGroupSeparator = " ";
+            numberFormat.CurrencyGroupSeparator = " ";
             numberFormat.NumberDecimalSeparator = ".";
+            numberFormat.CurrencyDecimalSeparator = ".";
 
             double actual = Length.Parse(s, numberFormat).Meters;
             Assert.Equal(expected, actual);
         }
 
         [Theory]
-        [InlineData("500.005.050,001 m", typeof(UnitsNetException))]
+        [InlineData("500.005.050,001 m", typeof(FormatException))]
         // quantity doesn't match number format
         public void ParseWithCultureUsingSpaceAsThousandSeparators_ThrowsExceptionOnInvalidString(string s, Type expectedExceptionType)
         {
             var numberFormat = (NumberFormatInfo) CultureInfo.InvariantCulture.NumberFormat.Clone();
             numberFormat.NumberGroupSeparator = " ";
+            numberFormat.CurrencyGroupSeparator = " ";
             numberFormat.NumberDecimalSeparator = ".";
+            numberFormat.CurrencyDecimalSeparator = ".";
 
             Assert.Throws(expectedExceptionType, () => Length.Parse(s, numberFormat));
         }
@@ -112,7 +103,9 @@ namespace UnitsNet.Tests.CustomCode
         {
             var numberFormat = (NumberFormatInfo) CultureInfo.InvariantCulture.NumberFormat.Clone();
             numberFormat.NumberGroupSeparator = ".";
+            numberFormat.CurrencyGroupSeparator = ".";
             numberFormat.NumberDecimalSeparator = ",";
+            numberFormat.CurrencyDecimalSeparator = ",";
 
             double actual = Length.Parse(s, numberFormat).Meters;
             Assert.Equal(expected, actual);
@@ -126,12 +119,14 @@ namespace UnitsNet.Tests.CustomCode
         }
 
         [Theory]
-        [InlineData("500 005 m", typeof(UnitsNetException))] // Quantity doesn't match number format.
+        [InlineData("500 005 m", typeof(FormatException))] // Quantity doesn't match number format.
         public void ParseWithCultureUsingDotAsThousandSeparators_ThrowsExceptionOnInvalidString(string s, Type expectedExceptionType)
         {
             var numberFormat = (NumberFormatInfo) CultureInfo.InvariantCulture.NumberFormat.Clone();
             numberFormat.NumberGroupSeparator = ".";
+            numberFormat.CurrencyGroupSeparator = ".";
             numberFormat.NumberDecimalSeparator = ",";
+            numberFormat.CurrencyDecimalSeparator = ",";
 
             Assert.Throws(expectedExceptionType, () => Length.Parse(s, numberFormat));
         }
@@ -156,7 +151,7 @@ namespace UnitsNet.Tests.CustomCode
 
         [Theory]
         [InlineData("1 m", true)]
-        [InlineData("1 m 50 cm", true)]
+        [InlineData("1 m 50 cm", false)]
         [InlineData("2 kg", false)]
         [InlineData(null, false)]
         [InlineData("foo", false)]
@@ -165,62 +160,6 @@ namespace UnitsNet.Tests.CustomCode
             CultureInfo usEnglish = new CultureInfo("en-US");
             bool actual = Length.TryParse(s, usEnglish, out Length _);
             Assert.Equal(expected, actual);
-        }
-
-        [Theory]
-        [InlineData("!")]
-        [InlineData("@")]
-        [InlineData("#")]
-        [InlineData("$")]
-        [InlineData("%")]
-        [InlineData("^")]
-        [InlineData("&")]
-        [InlineData("*")]
-        [InlineData("-")]
-        [InlineData("_")]
-        [InlineData("?")]
-        [InlineData("123")]
-        [InlineData(" ")]
-        public void TryParseLengthUnitAbbreviationSpecialCharacters(string s)
-        {
-            string abbrev = $"m{s}s";
-
-            UnitAbbreviationsCache.Default.MapUnitToAbbreviation(LengthUnit.Meter, abbrev);
-
-            // Act
-            bool ok = UnitParser.Default.TryParse(abbrev, out LengthUnit result);
-
-            // Assert
-            Assert.True(ok, "TryParse " + abbrev);
-            Assert.Equal(LengthUnit.Meter, result);
-        }
-
-        [Theory]
-        [InlineData("!")]
-        [InlineData("@")]
-        [InlineData("#")]
-        [InlineData("$")]
-        [InlineData("%")]
-        [InlineData("^")]
-        [InlineData("&")]
-        [InlineData("*")]
-        [InlineData("-")]
-        [InlineData("_")]
-        [InlineData("?")]
-        [InlineData("123")]
-        [InlineData(" ")]
-        public void TryParseLengthSpecialCharacters(string s)
-        {
-            string abbrev = $"m{s}s";
-
-            UnitAbbreviationsCache.Default.MapUnitToAbbreviation(LengthUnit.Meter, abbrev);
-
-            // Act
-            var ok = Length.TryParse($"10 {abbrev}", out var result);
-
-            // Assert
-            Assert.True(ok, $"TryParse \"10 {abbrev}\"");
-            Assert.Equal(10, result.Meters);
         }
     }
 }
